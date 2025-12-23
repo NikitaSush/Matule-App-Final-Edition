@@ -13,12 +13,7 @@ import com.aiden3630.presentation.R
 
 // Специальный шрифт для заставки (SF Pro Display)
 val SfProDisplay = FontFamily(
-    // Если файла нет, замени R.font.sf_pro_display на R.font.roboto_regular временно
-    Font(R.font.sf_pro_display, FontWeight.Normal),
-    Font(R.font.sf_pro_display, FontWeight.Medium),
-    Font(R.font.sf_pro_display, FontWeight.SemiBold)
-)
-
+    Font(R.font.sf_pro_display, FontWeight.Normal)) // <--- КРАШ, ЕСЛИ ФАЙЛА НЕТ
 // Основной шрифт приложения (Roboto)
 val Roboto = FontFamily(
     Font(R.font.roboto_regular, FontWeight.Normal),   // 400
