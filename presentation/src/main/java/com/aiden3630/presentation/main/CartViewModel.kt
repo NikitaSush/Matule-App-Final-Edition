@@ -39,8 +39,20 @@ class CartViewModel @Inject constructor(
     }
     fun checkout() {
         viewModelScope.launch {
-            cartManager.clearCart() // Чистим корзину
-            _cartEvent.send(CartEvent.OrderSuccess) // Шлем сигнал успеха
+            // Запоминаем сумму перед очисткой, чтобы показать в уведомлении
+            val currentSum = totalSum.value
+
+            // Чистим корзину
+            cartManager.clearCart()
+
+            // 👇 2. ВЫЗЫВАЕМ УВЕДОМЛЕНИЕ
+            notificationService.showNotification(
+                title = "Заказ успешно оформлен!",
+                message = "Сумма заказа: $currentSum ₽. Спасибо за покупку!"
+            )
+
+            // Отправляем событие для навигации
+            _cartEvent.send(CartEvent.OrderSuccess)
         }
     }
 }
