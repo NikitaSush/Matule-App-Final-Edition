@@ -1,17 +1,16 @@
-package com.aiden3630.feature_main.presentation
+package com.aiden3630.presentation.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -22,8 +21,6 @@ import com.aiden3630.data.model.Product
 import com.aiden3630.presentation.components.MatuleChip
 import com.aiden3630.presentation.components.MatuleSearchField
 import com.aiden3630.presentation.components.ProductCard
-import com.aiden3630.presentation.main.CartViewModel
-import com.aiden3630.presentation.main.ProductDetailsSheet
 import com.aiden3630.presentation.theme.*
 import com.aiden3630.presentation.R as UiKitR
 
@@ -32,30 +29,21 @@ import com.aiden3630.presentation.R as UiKitR
 fun CatalogScreen(
     onCartClick: () -> Unit = {},
     onProfileClick: () -> Unit = {}, // 👈 1. Новый коллбек для профиля
-    viewModel: CartViewModel = hiltViewModel() // 👈 2. Подключаем ViewModel корзины
+    cartViewModel: CartViewModel = hiltViewModel(), // VM для корзины
+    catalogViewModel: CatalogViewModel = hiltViewModel() // 👈 2. Подключаем ViewModel корзины
 ) {
-    var searchText by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("Все") }
+    val searchText by catalogViewModel.searchText.collectAsState()
+    val selectedCategory by catalogViewModel.selectedCategory.collectAsState()
+    val products by catalogViewModel.filteredProducts.collectAsState() // Это отфильтрованный список
 
-    // 👇 3. Слушаем реальные данные корзины
-    val cartItems by viewModel.cartItems.collectAsState()
-    val cartTotal by viewModel.totalSum.collectAsState()
+    // Данные корзины
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    val cartTotal by cartViewModel.totalSum.collectAsState()
 
-    // Состояние шторки
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val categories = listOf("Все", "Мужчинам", "Женщинам", "Детям", "Аксессуары")
-
-    // 👇 4. Используем нормальные модели Product (с ID), чтобы корзина понимала, что это
-    // ID должны совпадать с теми, что на главной, если товары одинаковые
-    val products = listOf(
-        Product(1, "Рубашка Воскресенье", 300, "Мужская одежда"),
-        Product(2, "Шорты Вторник", 300, "Мужская одежда"),
-        Product(3, "Платье Среда", 800, "Женская одежда"),
-        Product(4, "Футболка Четверг", 450, "Унисекс"),
-        Product(5, "Шарф Пятница", 150, "Аксессуары")
-    )
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -73,19 +61,19 @@ fun CatalogScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    // 👇 ПОИСК РАБОТАЕТ ЧЕРЕЗ VIEWMODEL
                     MatuleSearchField(
                         value = searchText,
-                        onValueChange = { searchText = it },
+                        onValueChange = { catalogViewModel.onSearchChange(it) }, // Передаем текст
                         modifier = Modifier.weight(1f)
                     )
 
                     Spacer(modifier = Modifier.width(14.dp))
 
-                    // Иконка профиля
                     Box(
                         modifier = Modifier
                             .size(48.dp)
-                            .clickable { onProfileClick() }, // 👈 5. Вызываем переход в профиль
+                            .clickable { onProfileClick() },
                         contentAlignment = Alignment.CenterEnd
                     ) {
                         Icon(
@@ -106,7 +94,10 @@ fun CatalogScreen(
                         MatuleChip(
                             text = categories[index],
                             isSelected = selectedCategory == categories[index],
-                            onClick = { selectedCategory = categories[index] }
+                            onClick = {
+                                // 👇 ФИЛЬТР ПО КАТЕГОРИИ
+                                catalogViewModel.onCategoryChange(categories[index])
+                            }
                         )
                     }
                 }
@@ -114,30 +105,34 @@ fun CatalogScreen(
             }
 
             // --- 3. Товары ---
-            items(products.size) { index ->
-                val product = products[index]
+            if (products.isEmpty()) {
+                item {
+                    Text(
+                        text = "Ничего не найдено",
+                        style = BodyText,
+                        color = MatuleTextGray,
+                        modifier = Modifier.padding(top = 20.dp)
+                    )
+                }
+            } else {
+                items(products) { product ->
+                    val isProductInCart = cartItems.any { it.product.id == product.id }
 
-                // 👇 6. Проверяем наличие в корзине РЕАЛЬНО
-                val isProductInCart = cartItems.any { it.product.id == product.id }
-
-                ProductCard(
-                    title = product.title,
-                    price = "${product.price} ₽",
-                    category = product.category,
-                    isInCart = isProductInCart,
-                    onAddClick = {
-                        viewModel.onPlusClick(product) // 👈 Добавляем в общую корзину
-                    },
-                    onRemoveClick = {
-                        viewModel.onDeleteClick(product) // 👈 Удаляем из общей корзины
-                    },
-                    onClick = { showBottomSheet = true }
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                    ProductCard(
+                        title = product.title,
+                        price = "${product.price} ₽",
+                        category = product.category,
+                        isInCart = isProductInCart,
+                        onAddClick = { cartViewModel.onPlusClick(product) },
+                        onRemoveClick = { cartViewModel.onDeleteClick(product) },
+                        onClick = { showBottomSheet = true }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
 
-        // --- 4. ПЛАВАЮЩАЯ КНОПКА ---
+        // --- 4. Кнопка Корзины ---
         if (cartTotal > 0) {
             Box(
                 modifier = Modifier
@@ -150,9 +145,7 @@ fun CatalogScreen(
                     .clickable { onCartClick() }
             ) {
                 Row(
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 16.dp),
+                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -162,16 +155,9 @@ fun CatalogScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
-                    Text(
-                        text = "В корзину",
-                        style = Title3.copy(color = MatuleWhite, fontWeight = FontWeight.SemiBold)
-                    )
+                    Text("В корзину", style = Title3.copy(color = MatuleWhite, fontWeight = FontWeight.SemiBold))
                 }
-                Text(
-                    text = "$cartTotal ₽",
-                    style = Title3.copy(color = MatuleWhite, fontWeight = FontWeight.SemiBold),
-                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
-                )
+                Text("$cartTotal ₽", style = Title3.copy(color = MatuleWhite, fontWeight = FontWeight.SemiBold), modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp))
             }
         }
 
@@ -185,10 +171,7 @@ fun CatalogScreen(
             ) {
                 ProductDetailsSheet(
                     onDismiss = { showBottomSheet = false },
-                    onAddToCart = {
-                        // TODO: Тут тоже можно вызвать viewModel.onPlusClick()
-                        showBottomSheet = false
-                    }
+                    onAddToCart = { showBottomSheet = false }
                 )
             }
         }

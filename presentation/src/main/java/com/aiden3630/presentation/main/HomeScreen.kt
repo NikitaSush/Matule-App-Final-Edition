@@ -30,27 +30,23 @@ import com.aiden3630.presentation.R as UiKitR
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.lazy.items
+import com.aiden3630.presentation.main.HomeViewModel
 
 @Composable
 fun HomeScreen(
     onCartClick: () -> Unit = {},
-    cartViewModel: CartViewModel = hiltViewModel()
+    cartViewModel: CartViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
-    var searchText by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("Все") }
+    val searchText by homeViewModel.searchText.collectAsState()
+    val selectedCategory by homeViewModel.selectedCategory.collectAsState()
+    val products by homeViewModel.filteredProducts.collectAsState() // Это уже отфильтрованный список!
 
-    // Берем сумму из ViewModel
+    // Данные для корзины (сумма и список покупок) остаются от CartViewModel
     val cartItems by cartViewModel.cartItems.collectAsState()
     val cartTotal by cartViewModel.totalSum.collectAsState()
-    val categories = listOf("Все", "Мужчинам", "Женщинам", "Детям")
 
-    // Список товаров (Моки)
-    val products = listOf(
-        Product(1, "Рубашка Воскресенье", 300),
-        Product(2, "Шорты Вторник", 400),
-        Product(3, "Платье Среда", 800),
-        Product(4, "Футболка Четверг", 450)
-    )
+    val categories = listOf("Все", "Мужчинам", "Женщинам", "Детям")
 
     // ВАЖНО: Box должен быть корневым, чтобы кнопка корзины легла поверх списка
     Box(modifier = Modifier.fillMaxSize()) {
@@ -67,7 +63,9 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(20.dp))
                 MatuleSearchField(
                     value = searchText,
-                    onValueChange = { searchText = it }
+                    onValueChange = {
+                        homeViewModel.onSearchTextChange(it) // 👈 Передаем текст в VM
+                    }
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -102,13 +100,14 @@ fun HomeScreen(
             item {
                 Text(text = "Каталог описаний", style = Title3)
                 Spacer(modifier = Modifier.height(16.dp))
-
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(categories.size) { index ->
                         MatuleChip(
                             text = categories[index],
                             isSelected = selectedCategory == categories[index],
-                            onClick = { selectedCategory = categories[index] }
+                            onClick = {
+                                homeViewModel.onCategoryChange(categories[index]) // 👈 Передаем категорию в VM
+                            }
                         )
                     }
                 }
@@ -116,23 +115,29 @@ fun HomeScreen(
             }
 
             // --- 4. Товары ---
-            items(products) { product ->
+            if (products.isEmpty()) {
+                // Если ничего не найдено
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
+                        Text("Ничего не найдено", style = BodyText, color = MatuleTextGray)
+                    }
+                }
+            } else {
+                items(products) { product ->
+                    // Проверяем, есть ли товар в корзине
+                    val isProductInCart = cartItems.any { it.product.id == product.id }
 
-                val isProductInCart = cartItems.any { it.product.id == product.id }
-
-                ProductCard(
-                    title = product.title,
-                    price = "${product.price} ₽",
-                    isInCart = isProductInCart,
-                    onAddClick = {
-                        cartViewModel.onPlusClick(product)
-                    },
-                    onRemoveClick = {
-                        cartViewModel.onDeleteClick(product)
-                    },
-                    onClick = {}
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                    ProductCard(
+                        title = product.title,
+                        price = "${product.price} ₽",
+                        category = product.category, // Показываем категорию
+                        isInCart = isProductInCart,
+                        onAddClick = { cartViewModel.onPlusClick(product) },
+                        onRemoveClick = { cartViewModel.onDeleteClick(product) },
+                        onClick = {}
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
 

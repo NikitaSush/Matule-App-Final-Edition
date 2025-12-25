@@ -14,7 +14,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.aiden3630.presentation.Route
-import com.aiden3630.feature_main.presentation.CatalogScreen
 import com.aiden3630.presentation.components.BottomTab
 import com.aiden3630.presentation.components.MatuleBottomBar
 import com.aiden3630.presentation.R as UiKitR
