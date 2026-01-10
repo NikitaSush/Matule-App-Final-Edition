@@ -11,13 +11,31 @@ import com.aiden3630.presentation.components.MatuleButton
 import com.aiden3630.presentation.components.MatuleTextField
 import com.aiden3630.presentation.theme.*
 import com.aiden3630.presentation.R as UiKitR
+import androidx.hilt.navigation.compose.hiltViewModel
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun CreatePasswordScreen(
-    onSaveClick: () -> Unit = {}
+    onSaveClick: () -> Unit = {},
+    viewModel: CreatePasswordViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                is AuthEvent.Success -> {
+                    Toast.makeText(context, "Пароль успешно создан!", Toast.LENGTH_SHORT).show()
+                    onSaveClick() // Переход на следующий экран (ПИН или Главная)
+                }
+                is AuthEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     // Состояния ошибок
     var isPasswordError by remember { mutableStateOf(false) }
@@ -115,10 +133,11 @@ fun CreatePasswordScreen(
 
         // --- Кнопка "Сохранить" ---
         MatuleButton(
-            text = "Сохранить", // В макете кнопка перекрыта, но скорее всего там "Сохранить" или "Далее"
+            text = "Сохранить",
             onClick = {
                 if (validatePassword()) {
-                    onSaveClick()
+                    // 👇 ВЫЗЫВАЕМ РЕАЛЬНОЕ СОХРАНЕНИЕ
+                    viewModel.finalizeRegistration(password)
                 }
             },
             enabled = password.isNotEmpty() && confirmPassword.isNotEmpty()

@@ -12,6 +12,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val repository: AuthRepository,
+    private val tokenManager: com.aiden3630.data.manager.TokenManager,
     private val notificationService: com.aiden3630.presentation.utils.NotificationService
 ) : ViewModel() {
 
@@ -27,6 +28,11 @@ class SignUpViewModel @Inject constructor(
             } catch (e: Exception) {
                 _signUpEvent.send(AuthEvent.Error(e.message ?: "Ошибка регистрации"))
             }
+        }
+    }
+    fun saveTmpUserInfo(email: String, name: String, surname: String) {
+        viewModelScope.launch {
+            tokenManager.saveUserInfo(email, name, surname)
         }
     }
 }

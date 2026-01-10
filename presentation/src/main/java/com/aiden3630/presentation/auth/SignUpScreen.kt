@@ -33,6 +33,7 @@ fun SignUpScreen(
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     // Состояния всех полей
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
@@ -195,14 +196,14 @@ fun SignUpScreen(
         MatuleButton(
             text = "Далее",
             onClick = {
-                // Проверяем валидацию перед отправкой
                 if (validateEmail(email)) {
-                    viewModel.onSignUpClick(name, surname, email, "temp_pass")
+                    // 👇 ТЕПЕРЬ ВЫЗЫВАЕМ ЧЕРЕЗ VIEWMODEL
+                    viewModel.saveTmpUserInfo(email, name, surname)
+                    onNextClick()
                 } else {
-                    isEmailError = true // Показываем ошибку
+                    isEmailError = true
                 }
             },
-            // Кнопка активна, только если поля заполнены
             enabled = name.isNotEmpty() && surname.isNotEmpty() && email.isNotEmpty()
         )
         if (showDatePicker) {

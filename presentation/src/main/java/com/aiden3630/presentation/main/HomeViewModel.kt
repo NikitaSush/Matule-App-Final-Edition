@@ -2,29 +2,24 @@ package com.aiden3630.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aiden3630.data.model.Product
+import com.aiden3630.domain.model.Product
+import com.aiden3630.domain.repository.ShopRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : ViewModel() {
+class HomeViewModel @Inject constructor(
+    private val shopRepository: ShopRepository // 👈 Инжектим репозиторий
+) : ViewModel() {
 
-    // 1. Исходные данные (пока моки, потом заменим на БД/Сеть)
-    private val _allProducts = MutableStateFlow(
-        listOf(
-            Product(1, "Рубашка Воскресенье", 300, "Мужчинам"),
-            Product(2, "Шорты Вторник", 400, "Мужчинам"),
-            Product(3, "Платье Среда", 800, "Женщинам"),
-            Product(4, "Футболка Четверг", 450, "Детям"),
-            Product(5, "Кепка Пятница", 150, "Мужчинам"),
-            Product(6, "Блузка Суббота", 600, "Женщинам")
-        )
-    )
+    // 1. Исходные данные теперь загружаются из Репозитория
+    private val _allProducts = MutableStateFlow<List<Product>>(emptyList())
 
     // 2. Состояние поиска и категории
     private val _searchText = MutableStateFlow("")
@@ -34,7 +29,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     val selectedCategory = _selectedCategory.asStateFlow()
 
     // 3. УМНЫЙ СПИСОК (Результат фильтрации)
-    // combine следит за изменениями в поиске, категории или списке
+    // combine следит за изменениями в поиске, категории или списке товаров
     val filteredProducts = combine(_allProducts, _searchText, _selectedCategory) { products, text, category ->
         products.filter { product ->
             // Условие 1: Поиск по названию (игнорируя регистр)
@@ -48,8 +43,22 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = _allProducts.value
+        initialValue = emptyList()
     )
+
+    // При создании ViewModel загружаем данные
+    init {
+        loadProducts()
+    }
+
+    private fun loadProducts() {
+        viewModelScope.launch {
+            // Читаем товары из JSON-файла через репозиторий
+            shopRepository.getProducts().collect { list ->
+                _allProducts.value = list
+            }
+        }
+    }
 
     // Методы для UI
     fun onSearchTextChange(text: String) {

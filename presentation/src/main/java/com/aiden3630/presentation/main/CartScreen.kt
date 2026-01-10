@@ -76,7 +76,7 @@ fun CartScreen(
                 painter = painterResource(id = UiKitR.drawable.ic_delete),
                 contentDescription = "Clear",
                 tint = MatuleBlack,
-                modifier = Modifier.align(Alignment.CenterEnd).size(20.dp)
+                modifier = Modifier.align(Alignment.CenterEnd).size(24.dp) .clickable { viewModel.onClearCartClick() }
             )
         }
 

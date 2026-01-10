@@ -1,7 +1,7 @@
 package com.aiden3630.data.manager
 
-import com.aiden3630.data.model.CartItemModel
-import com.aiden3630.data.model.Product
+import com.aiden3630.domain.model.CartItemModel
+import com.aiden3630.domain.model.Product
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map

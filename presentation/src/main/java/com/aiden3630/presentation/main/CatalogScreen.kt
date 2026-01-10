@@ -5,8 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items // 👈 Импорт для списка
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,7 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aiden3630.data.model.Product
+import com.aiden3630.domain.model.Product
 import com.aiden3630.presentation.components.MatuleChip
 import com.aiden3630.presentation.components.MatuleSearchField
 import com.aiden3630.presentation.components.ProductCard
@@ -28,19 +28,18 @@ import com.aiden3630.presentation.R as UiKitR
 @Composable
 fun CatalogScreen(
     onCartClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {}, // 👈 1. Новый коллбек для профиля
-    cartViewModel: CartViewModel = hiltViewModel(), // VM для корзины
-    catalogViewModel: CatalogViewModel = hiltViewModel() // 👈 2. Подключаем ViewModel корзины
+    onProfileClick: () -> Unit = {},
+    cartViewModel: CartViewModel = hiltViewModel(),
+    catalogViewModel: CatalogViewModel = hiltViewModel()
 ) {
     val searchText by catalogViewModel.searchText.collectAsState()
     val selectedCategory by catalogViewModel.selectedCategory.collectAsState()
-    val products by catalogViewModel.filteredProducts.collectAsState() // Это отфильтрованный список
+    val products by catalogViewModel.filteredProducts.collectAsState()
 
-    // Данные корзины
     val cartItems by cartViewModel.cartItems.collectAsState()
     val cartTotal by cartViewModel.totalSum.collectAsState()
 
-    var showBottomSheet by remember { mutableStateOf(false) }
+    var selectedProductForSheet by remember { mutableStateOf<Product?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val categories = listOf("Все", "Мужчинам", "Женщинам", "Детям", "Аксессуары")
@@ -61,10 +60,10 @@ fun CatalogScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // 👇 ПОИСК РАБОТАЕТ ЧЕРЕЗ VIEWMODEL
                     MatuleSearchField(
                         value = searchText,
-                        onValueChange = { catalogViewModel.onSearchChange(it) }, // Передаем текст
+                        // 👇 ИСПРАВЛЕНИЕ 1: Правильное имя метода (onSearchChange)
+                        onValueChange = { catalogViewModel.onSearchTextChange(it) },
                         modifier = Modifier.weight(1f)
                     )
 
@@ -95,7 +94,6 @@ fun CatalogScreen(
                             text = categories[index],
                             isSelected = selectedCategory == categories[index],
                             onClick = {
-                                // 👇 ФИЛЬТР ПО КАТЕГОРИИ
                                 catalogViewModel.onCategoryChange(categories[index])
                             }
                         )
@@ -107,25 +105,31 @@ fun CatalogScreen(
             // --- 3. Товары ---
             if (products.isEmpty()) {
                 item {
-                    Text(
-                        text = "Ничего не найдено",
-                        style = BodyText,
-                        color = MatuleTextGray,
-                        modifier = Modifier.padding(top = 20.dp)
-                    )
+                    Box(modifier = Modifier.fillMaxWidth().padding(top = 20.dp), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "Ничего не найдено",
+                            style = BodyText,
+                            color = MatuleTextGray
+                        )
+                    }
                 }
             } else {
-                items(products) { product ->
-                    val isProductInCart = cartItems.any { it.product.id == product.id }
+                // 👇 СМОТРИ СЮДА: мы пишем "product ->", чтобы дать имя переменной
+                items(items = products) { product: Product ->
+
+                    // 👇 Здесь мы пишем "cartItem ->", чтобы не путать с product
+                    val isProductInCart = cartItems.any { cartItem -> cartItem.product.id == product.id }
 
                     ProductCard(
                         title = product.title,
                         price = "${product.price} ₽",
                         category = product.category,
                         isInCart = isProductInCart,
+
+                        // 👇 Теперь используем "product", а не "it"
                         onAddClick = { cartViewModel.onPlusClick(product) },
                         onRemoveClick = { cartViewModel.onDeleteClick(product) },
-                        onClick = { showBottomSheet = true }
+                        onClick = { selectedProductForSheet = product }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -162,16 +166,22 @@ fun CatalogScreen(
         }
 
         // --- 5. Шторка ---
-        if (showBottomSheet) {
+        if (selectedProductForSheet != null) {
             ModalBottomSheet(
-                onDismissRequest = { showBottomSheet = false },
+                onDismissRequest = { selectedProductForSheet = null },
                 sheetState = sheetState,
                 containerColor = MatuleWhite,
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
             ) {
                 ProductDetailsSheet(
-                    onDismiss = { showBottomSheet = false },
-                    onAddToCart = { showBottomSheet = false }
+                    title = selectedProductForSheet!!.title,
+                    price = "${selectedProductForSheet!!.price} ₽",
+                    description = selectedProductForSheet!!.description,
+                    onDismiss = { selectedProductForSheet = null },
+                    onAddToCart = {
+                        cartViewModel.onPlusClick(selectedProductForSheet!!)
+                        selectedProductForSheet = null
+                    }
                 )
             }
         }

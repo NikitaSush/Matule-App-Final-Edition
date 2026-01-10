@@ -21,16 +21,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aiden3630.data.model.Product
 import com.aiden3630.presentation.components.MatuleChip
 import com.aiden3630.presentation.components.MatuleSearchField
 import com.aiden3630.presentation.components.ProductCard
 import com.aiden3630.presentation.theme.*
 import com.aiden3630.presentation.R as UiKitR
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.lazy.items
-import com.aiden3630.presentation.main.HomeViewModel
 
 @Composable
 fun HomeScreen(
@@ -123,17 +120,25 @@ fun HomeScreen(
                     }
                 }
             } else {
-                items(products) { product ->
-                    // Проверяем, есть ли товар в корзине
-                    val isProductInCart = cartItems.any { it.product.id == product.id }
+                items(products) { product -> // <--- 1. Мы назвали это "product"
+
+                    // Тут мы используем "cartItem", чтобы не путаться
+                    val isProductInCart = cartItems.any { cartItem -> cartItem.product.id == product.id }
 
                     ProductCard(
                         title = product.title,
                         price = "${product.price} ₽",
-                        category = product.category, // Показываем категорию
+                        category = product.category,
                         isInCart = isProductInCart,
-                        onAddClick = { cartViewModel.onPlusClick(product) },
-                        onRemoveClick = { cartViewModel.onDeleteClick(product) },
+
+                        onAddClick = {
+                            cartViewModel.onPlusClick(product) // <--- ИСПРАВЛЕНО
+                        },
+
+                        onRemoveClick = {
+                            cartViewModel.onDeleteClick(product) // <--- ИСПРАВЛЕНО
+                        },
+
                         onClick = {}
                     )
                     Spacer(modifier = Modifier.height(16.dp))

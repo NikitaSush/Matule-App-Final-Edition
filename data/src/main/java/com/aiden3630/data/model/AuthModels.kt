@@ -28,6 +28,7 @@ data class SignUpRequest(
 data class UserDto(
     @SerialName("id") val id: String,
     @SerialName("email") val email: String? = null,
+    @SerialName("password") val password: String? = null,
     @SerialName("firstname") val name: String,
     @SerialName("lastname") val surname: String,
     @SerialName("avatar") val avatar: String? = null
