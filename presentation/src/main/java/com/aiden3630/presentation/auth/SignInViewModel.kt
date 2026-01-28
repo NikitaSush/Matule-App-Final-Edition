@@ -23,7 +23,7 @@ class SignInViewModel @Inject constructor(
     private val _authEvent = Channel<AuthEvent>()
     val authEvent = _authEvent.receiveAsFlow()
 
-    // 👇 Состояния для полей (чтобы UI мог их читать)
+    // Состояния для полей
     private val _emailState = MutableStateFlow("")
     val emailState = _emailState.asStateFlow()
 
@@ -31,7 +31,7 @@ class SignInViewModel @Inject constructor(
     val passwordState = _passwordState.asStateFlow()
 
     init {
-        // 👇 При запуске загружаем сохраненные данные
+        // При запуске загружаем сохраненные данные
         viewModelScope.launch {
             tokenManager.getEmail().collect { savedEmail ->
                 _emailState.value = savedEmail
@@ -60,10 +60,10 @@ class SignInViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // 👇 1. Сохраняем введенные данные перед входом
+                // Сохраняем введенные данные перед входом
                 tokenManager.saveUserData(email, password)
 
-                // 2. Пробуем войти
+                // Пробуем войти
                 repository.signIn(email, password)
                 notificationService.showNotification("Вход выполнен", "Добро пожаловать в Matule!")
                 _authEvent.send(AuthEvent.Success)
@@ -76,7 +76,7 @@ class SignInViewModel @Inject constructor(
         viewModelScope.launch {
             // Имитируем задержку сети
             kotlinx.coroutines.delay(500)
-            // Говорим "Успех", как будто сервер ответил ОК
+            // Говорим "Успех"
             _authEvent.send(AuthEvent.Success)
             notificationService.showNotification("Вход выполнен", "Добро пожаловать в Matule!")
         }

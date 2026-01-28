@@ -9,25 +9,25 @@ import androidx.compose.ui.unit.sp
 import com.aiden3630.presentation.R
 
 
-// --- 1. Определение семейств шрифтов ---
+// Определение семейств шрифтов
 
-// Специальный шрифт для заставки (SF Pro Display)
+// Специальный шрифт для заставки
 val SfProDisplay = FontFamily(
-    Font(R.font.sf_pro_display, FontWeight.Normal)) // <--- КРАШ, ЕСЛИ ФАЙЛА НЕТ
-// Основной шрифт приложения (Roboto)
+    Font(R.font.sf_pro_display, FontWeight.Normal))
+// Основной шрифт приложения
 val Roboto = FontFamily(
     Font(R.font.roboto_regular, FontWeight.Normal),   // 400
     Font(R.font.roboto_medium, FontWeight.Medium),    // 500
-    Font(R.font.roboto_bold, FontWeight.SemiBold),    // 600 (Используем Bold файл для SemiBold)
+    Font(R.font.roboto_bold, FontWeight.SemiBold),    // 600
     Font(R.font.roboto_bold, FontWeight.Bold),        // 700
     Font(R.font.roboto_bold, FontWeight.ExtraBold)    // 800
 )
 
-// --- 2. Стиль Заставки (Спринт 3) ---
+// Стиль Заставки (Спринт 3)
 
 val MatuleHeadingStyle = TextStyle(
-    fontFamily = SfProDisplay,       // Используем спец. шрифт
-    fontWeight = FontWeight.Normal,  // 400
+    fontFamily = SfProDisplay,
+    fontWeight = FontWeight.Normal,
     fontSize = 40.sp,
     lineHeight = 64.sp,
     letterSpacing = 1.04.sp,
@@ -35,7 +35,7 @@ val MatuleHeadingStyle = TextStyle(
     textAlign = TextAlign.Center
 )
 
-// --- 3. Стили UI Kit (Спринт 1) ---
+// Стили UI Kit (Спринт 1)
 
 // Title 1 (24px)
 val Title1 = TextStyle(
@@ -88,7 +88,7 @@ val Caption = TextStyle(
     fontWeight = FontWeight.Normal,   // 400
     fontSize = 14.sp,
     lineHeight = 20.sp,
-    color = MatuleTextGray // Серый цвет для подписей
+    color = MatuleTextGray
 )
 
 // Caption 2 (12px) - Мелкие подписи

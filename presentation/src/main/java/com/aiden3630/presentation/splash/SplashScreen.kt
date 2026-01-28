@@ -1,5 +1,6 @@
 package com.aiden3630.presentation.splash
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -25,7 +26,6 @@ fun SplashScreen(
     val destination by viewModel.startDestination.collectAsState()
 
     LaunchedEffect(destination) {
-        // Как только destination перестал быть null -> переходим
         if (destination != null) {
             navController.navigate(destination!!) {
                 // Удаляем Сплэш из истории, чтобы нельзя было вернуться назад
@@ -34,7 +34,7 @@ fun SplashScreen(
         }
     }
 
-    // Внешний вид (без изменений)
+    // Внешний вид
     SplashBackground {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -42,7 +42,10 @@ fun SplashScreen(
         ) {
             Text(
                 text = "Matule",
-                style = MatuleHeadingStyle
+                style = MatuleHeadingStyle,
+                        modifier = Modifier.clickable {
+                    navController.navigate(Route.STORYBOOK)
+                }
             )
         }
     }

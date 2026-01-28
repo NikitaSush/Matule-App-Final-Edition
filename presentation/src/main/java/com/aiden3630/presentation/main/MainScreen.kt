@@ -19,7 +19,7 @@ import com.aiden3630.presentation.components.MatuleBottomBar
 import com.aiden3630.presentation.R as UiKitR
 @Composable
 fun MainScreen(onNavigateToCart: () -> Unit = {}, onNavigateToCreateProject: () -> Unit = {}, onLogout: () -> Unit = {}, onNavigateToProjectDetails: (String) -> Unit = {}) {
-    // У главного экрана свой собственный NavController для вкладок
+    // У главного экрана свой собственный NavController
     val bottomNavController = rememberNavController()
 
 
@@ -30,8 +30,8 @@ fun MainScreen(onNavigateToCart: () -> Unit = {}, onNavigateToCreateProject: () 
     // Список вкладок
     val tabs = listOf(
         BottomTab(Route.HOME_TAB, "Главная", UiKitR.drawable.ic_home),
-        BottomTab(Route.CATALOG_TAB, "Каталог", UiKitR.drawable.ic_catalog), // <-- ic_catalog
-        BottomTab(Route.PROJECTS_TAB, "Проекты", UiKitR.drawable.ic_projects), // <-- ic_projects
+        BottomTab(Route.CATALOG_TAB, "Каталог", UiKitR.drawable.ic_catalog),
+        BottomTab(Route.PROJECTS_TAB, "Проекты", UiKitR.drawable.ic_projects),
         BottomTab(Route.PROFILE_TAB, "Профиль", UiKitR.drawable.ic_profile)
     )
 
@@ -41,7 +41,6 @@ fun MainScreen(onNavigateToCart: () -> Unit = {}, onNavigateToCreateProject: () 
                 currentRoute = currentRoute,
                 onNavigate = { route ->
                     bottomNavController.navigate(route) {
-                        // Логика, чтобы не плодить копии экранов в стеке
                         popUpTo(bottomNavController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
@@ -57,21 +56,19 @@ fun MainScreen(onNavigateToCart: () -> Unit = {}, onNavigateToCreateProject: () 
             startDestination = Route.HOME_TAB,
             modifier = Modifier.padding(innerPadding)
         ) {
-            // 1. Главная
+            // Главная
             composable(Route.HOME_TAB) {
                 HomeScreen(
                     onCartClick = onNavigateToCart
                 )
             }
 
-            // 2. Каталог (Вместо Избранного)
+            // Каталог
             composable(Route.CATALOG_TAB) {
                 CatalogScreen(
                     onCartClick = onNavigateToCart,
-                    // 👇 При клике на иконку переходим на вкладку ПРОФИЛЯ
                     onProfileClick = {
                         bottomNavController.navigate(Route.PROFILE_TAB) {
-                            // Чтобы не создавать копии, просто переключаемся
                             popUpTo(bottomNavController.graph.startDestinationId) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
@@ -79,18 +76,17 @@ fun MainScreen(onNavigateToCart: () -> Unit = {}, onNavigateToCreateProject: () 
                     }
                 )
             }
-            // 3. Проекты (Вместо Корзины)
+            // Проекты
             composable(Route.PROJECTS_TAB) {
                 ProjectsScreen(
                     onAddProjectClick = onNavigateToCreateProject,
-                    // 👇 СВЯЗЫВАЕМ: Когда нажали на карточку -> шлем сигнал наверх
                     onProjectClick = { projectId ->
                         onNavigateToProjectDetails(projectId)
                     }
                 )
             }
 
-            // 4. Профиль
+            // Профиль
             composable(Route.PROFILE_TAB) {
                 ProfileScreen(
                     onLogoutClick = onLogout

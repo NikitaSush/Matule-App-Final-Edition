@@ -22,7 +22,7 @@ import com.aiden3630.presentation.R as UiKitR
 fun ProductDetailsSheet(
     title: String,
     price: String,
-    description: String, // 👈 ВОТ ЭТОГО НЕ ХВАТАЛО
+    description: String,
     onDismiss: () -> Unit,
     onAddToCart: () -> Unit
 ) {
@@ -35,7 +35,7 @@ fun ProductDetailsSheet(
         // Шапка
         Box(modifier = Modifier.fillMaxWidth().padding(top = 16.dp, end = 16.dp)) {
             Icon(
-                painter = painterResource(id = UiKitR.drawable.ic_close), // Или ic_dismiss
+                painter = painterResource(id = UiKitR.drawable.ic_close),
                 contentDescription = "Close",
                 tint = MatuleGrayIcon,
                 modifier = Modifier.align(Alignment.CenterEnd).size(24.dp).clickable { onDismiss() }
@@ -56,16 +56,15 @@ fun ProductDetailsSheet(
                 .padding(horizontal = 20.dp, vertical = 24.dp)
         ) {
             Text(
-                text = "Описание", // Это просто заголовок
+                text = "Описание",
                 style = Caption,
                 color = MatuleTextGray
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 👇 ВОТ ЗДЕСЬ ДОЛЖНА БЫТЬ ПЕРЕМЕННАЯ
             Text(
-                text = description, // 👈 УБЕДИСЬ, ЧТО ЗДЕСЬ ЭТО СЛОВО БЕЗ КАВЫЧЕК
+                text = description,
                 style = BodyText.copy(lineHeight = 22.sp),
                 color = MatuleBlack
             )

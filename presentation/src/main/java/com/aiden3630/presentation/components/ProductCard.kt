@@ -24,7 +24,7 @@ import com.aiden3630.presentation.theme.*
 fun ProductCard(
     title: String,
     price: String,
-    category: String = "Мужская одежда", // Добавил поле для категории (как на скрине)
+    category: String = "Мужская одежда", // Добавил поле для категории
     isInCart: Boolean = false,
     onAddClick: () -> Unit = {},
     onRemoveClick: () -> Unit = {},
@@ -48,7 +48,7 @@ fun ProductCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 40.dp) // Оставляем место внизу для цены и кнопки
+                .padding(bottom = 40.dp)
         ) {
             // Название товара
             Text(
@@ -63,14 +63,12 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Категория (серый текст)
+            // Категория
             Text(
                 text = category,
                 style = Caption.copy(color = MatuleTextGray)
             )
         }
-
-        // Нижняя часть: Цена (слева) и Кнопка (справа)
 
         // Цена
         Text(
@@ -84,10 +82,9 @@ fun ProductCard(
         val buttonModifier = Modifier
             .align(Alignment.BottomEnd)
             .height(40.dp)
-            .width(110.dp) // Чуть шире, чтобы влезло "Добавить"
+            .width(110.dp)
 
         if (isInCart) {
-            // Если в корзине -> Белая кнопка "Убрать"
             Button(
                 onClick = onRemoveClick,
                 modifier = buttonModifier,
@@ -102,7 +99,6 @@ fun ProductCard(
                 )
             }
         } else {
-            // Если нет -> Синяя кнопка "Добавить"
             Button(
                 onClick = onAddClick,
                 modifier = buttonModifier,

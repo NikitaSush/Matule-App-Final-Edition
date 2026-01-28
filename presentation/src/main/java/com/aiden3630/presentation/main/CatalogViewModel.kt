@@ -30,7 +30,6 @@ class CatalogViewModel @Inject constructor(
     val filteredProducts = combine(_allProducts, _searchText, _selectedCategory) { products, text, category ->
         products.filter { product ->
             val matchesSearch = product.title.contains(text, ignoreCase = true)
-            // 👇 ТЕПЕРЬ ТУТ БУДЕТ СОВПАДЕНИЕ: "Мужчинам" == "Мужчинам"
             val matchesCategory = if (category == "Все") true else product.category == category
             matchesSearch && matchesCategory
         }

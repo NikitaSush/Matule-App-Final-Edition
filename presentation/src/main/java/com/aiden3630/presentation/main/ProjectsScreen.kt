@@ -38,7 +38,7 @@ fun ProjectsScreen(
             .padding(horizontal = 20.dp),
         contentPadding = PaddingValues(bottom = 100.dp)
     ) {
-        // --- Хедер ---
+        // Хедер
         item {
             Spacer(modifier = Modifier.height(20.dp))
             Box(
@@ -66,7 +66,7 @@ fun ProjectsScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // --- Список проектов ---
+        // Список проектов
         if (projects.isEmpty()) {
             item {
                 Box(
@@ -83,7 +83,6 @@ fun ProjectsScreen(
                 }
             }
         } else {
-            // Теперь, благодаря импорту UserProject, студия понимает, что 'project' - это UserProject
             items(projects) { project ->
                 ProjectCard(
                     title = project.name,

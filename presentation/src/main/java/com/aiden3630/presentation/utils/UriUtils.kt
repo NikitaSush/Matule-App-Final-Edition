@@ -16,7 +16,6 @@ fun Context.createImageFile(): Uri {
         ".jpg",
         externalCacheDir
     )
-    // Важно: Authority должен совпадать с тем, что в Манифесте!
     return FileProvider.getUriForFile(
         this,
         "${packageName}.provider",

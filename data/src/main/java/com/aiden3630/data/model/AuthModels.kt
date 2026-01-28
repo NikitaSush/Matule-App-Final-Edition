@@ -1,4 +1,4 @@
-package com.aiden3630.data.model // 👈 ЭТО САМОЕ ВАЖНОЕ! Пакет должен совпадать с папкой
+package com.aiden3630.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

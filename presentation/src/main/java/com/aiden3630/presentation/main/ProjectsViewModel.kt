@@ -1,4 +1,4 @@
-package com.aiden3630.presentation.main // 👈 ВАЖНО: Пакет должен быть таким
+package com.aiden3630.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

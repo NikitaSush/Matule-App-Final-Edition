@@ -36,7 +36,7 @@ fun CreateProjectScreen(
     onBackClick: () -> Unit = {},
     viewModel: CreateProjectViewModel = hiltViewModel()
 ) {
-    // 👇 1. ВОТ ЭТОЙ СТРОКИ НЕ ХВАТАЛО
+
     val context = LocalContext.current
 
     // --- Состояния полей ---
@@ -64,7 +64,6 @@ fun CreateProjectScreen(
     val whoOptions = listOf("Себе", "В подарок", "На продажу", "Детям")
     val categoryOptions = listOf("Одежда", "Игрушки", "Аксессуары", "Дом")
 
-    // --- ЛАУНЧЕРЫ ---
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -98,7 +97,7 @@ fun CreateProjectScreen(
             .padding(horizontal = 20.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        // --- 1. Хедер ---
+        // Хедер
         Spacer(modifier = Modifier.height(20.dp))
         Box(modifier = Modifier.fillMaxWidth()) {
             Icon(
@@ -117,7 +116,7 @@ fun CreateProjectScreen(
         }
         Spacer(modifier = Modifier.height(30.dp))
 
-        // --- 2. Поля ---
+        // Поля
         InputLabel("Тип")
         ProjectDropdown(value = type, onValueChange = { type = it }, placeholder = "Выберите тип", options = typeOptions)
         Spacer(modifier = Modifier.height(16.dp))
@@ -158,7 +157,7 @@ fun CreateProjectScreen(
         ProjectDropdown(value = category, onValueChange = { category = it }, placeholder = "Выберите категорию", options = categoryOptions)
         Spacer(modifier = Modifier.height(24.dp))
 
-        // --- 3. Фото ---
+        // Фото
         Box(
             modifier = Modifier
                 .size(200.dp)
@@ -187,16 +186,16 @@ fun CreateProjectScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // --- 4. Кнопка Подтвердить ---
+        // Кнопка Подтвердить
         MatuleButton(
             text = "Подтвердить",
             onClick = {
                 viewModel.createProject(
-                    context = context, // 👈 Передаем контекст
+                    context = context,
                     name = name,
                     type = type,
                     dateStart = dateStart,
-                    imageUri = selectedImageUri // 👈 Передаем Uri (не toString)
+                    imageUri = selectedImageUri
                 ) {
                     Toast.makeText(context, "Проект создан!", Toast.LENGTH_SHORT).show()
                     onBackClick()
@@ -207,7 +206,7 @@ fun CreateProjectScreen(
         Spacer(modifier = Modifier.height(40.dp))
     }
 
-    // --- Календарь ---
+    // Календарь
     if (dateFieldType != null) {
         MatuleDatePicker(
             onDateSelected = { millis ->
@@ -220,7 +219,7 @@ fun CreateProjectScreen(
         )
     }
 
-    // --- Шторка Фото ---
+    // Шторка Фото
     if (showPhotoSheet) {
         ModalBottomSheet(
             onDismissRequest = { showPhotoSheet = false },

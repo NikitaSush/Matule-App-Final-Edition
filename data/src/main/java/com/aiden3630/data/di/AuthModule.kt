@@ -6,10 +6,10 @@ import com.aiden3630.data.manager.TokenManager
 import com.aiden3630.data.network.AuthApi
 import com.aiden3630.data.repository.AuthRepositoryImpl
 import com.aiden3630.data.repository.ProjectRepositoryImpl
-import com.aiden3630.data.repository.ShopRepositoryImpl // 👈 Импорт реализации
+import com.aiden3630.data.repository.ShopRepositoryImpl
 import com.aiden3630.domain.repository.AuthRepository
 import com.aiden3630.domain.repository.ProjectRepository
-import com.aiden3630.domain.repository.ShopRepository // 👈 Импорт интерфейса
+import com.aiden3630.domain.repository.ShopRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,7 +38,6 @@ object AuthModule {
         return AuthRepositoryImpl(api, tokenManager, jsonDbManager)
     }
 
-    // 👇 ВОТ ЭТОГО НЕ ХВАТАЛО:
     @Provides
     @Singleton
     fun provideShopRepository(

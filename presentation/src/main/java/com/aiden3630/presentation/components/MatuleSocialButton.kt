@@ -26,7 +26,7 @@ import com.aiden3630.presentation.theme.MatuleWhite
 @Composable
 fun MatuleSocialButton(
     text: String,
-    @DrawableRes iconRes: Int, // Ссылка на иконку (R.drawable.ic_vk)
+    @DrawableRes iconRes: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -34,15 +34,14 @@ fun MatuleSocialButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(60.dp), // В макете они чуть выше обычных (60px против 56px)
+            .height(60.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MatuleWhite, // Белый фон
-            contentColor = MatuleBlack    // Черный текст
+            containerColor = MatuleWhite,
+            contentColor = MatuleBlack
         ),
-        border = BorderStroke(1.dp, MatuleInputStroke) // Серая обводка (#EBEBEB)
+        border = BorderStroke(1.dp, MatuleInputStroke)
     ) {
-        // Ряд: Иконка + Текст
         Image(
             painter = painterResource(id = iconRes),
             contentDescription = null,

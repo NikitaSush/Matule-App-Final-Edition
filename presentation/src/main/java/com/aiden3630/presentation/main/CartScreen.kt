@@ -29,7 +29,7 @@ import com.aiden3630.presentation.main.CartViewModel
 @Composable
 fun CartScreen(
     onBackClick: () -> Unit = {},onGoHome: () -> Unit = {},
-    viewModel: CartViewModel = hiltViewModel() // 👈 Внедряем VM
+    viewModel: CartViewModel = hiltViewModel()
 ) {
     // Получаем данные из VM
     val context = LocalContext.current
@@ -50,9 +50,10 @@ fun CartScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MatuleBackground)
+            .statusBarsPadding()
             .padding(horizontal = 20.dp)
     ) {
-        // --- Хедер ---
+        // Хедер
         Spacer(modifier = Modifier.height(20.dp))
         Box(modifier = Modifier.fillMaxWidth()) {
             Box(
@@ -71,7 +72,7 @@ fun CartScreen(
             }
             Text(text = "Корзина", style = Title2, modifier = Modifier.align(Alignment.Center))
 
-            // Иконка мусорки справа (очистить всё - опционально)
+            // Иконка мусорки справа
             Icon(
                 painter = painterResource(id = UiKitR.drawable.ic_delete),
                 contentDescription = "Clear",
@@ -84,7 +85,7 @@ fun CartScreen(
         Text(text = "${items.size} товаров", style = BodyText)
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- Список товаров ---
+        // Список товаров
         if (items.isEmpty()) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text("Корзина пуста", style = Title3, color = MatuleTextGray)
@@ -108,7 +109,7 @@ fun CartScreen(
             }
         }
 
-        // --- Итого ---
+        // Итого
         if (items.isNotEmpty()) {
             Column {
                 Row(

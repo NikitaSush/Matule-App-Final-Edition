@@ -27,17 +27,17 @@ fun MatuleButton(
         modifier = modifier
             .fillMaxWidth() // Кнопка на всю ширину
             .height(56.dp), // Высота по макету
-        shape = RoundedCornerShape(14.dp), // Закругление (как у полей ввода)
+        shape = RoundedCornerShape(14.dp), // Закругление
         colors = ButtonDefaults.buttonColors(
             containerColor = MatuleBlue,         // Синий фон
             contentColor = MatuleWhite,          // Белый текст
-            disabledContainerColor = MatuleBlueDisable, // Бледно-синий (когда выключена)
+            disabledContainerColor = MatuleBlueDisable, // Бледно-синий
             disabledContentColor = MatuleWhite
         )
     ) {
         Text(
             text = text,
-            style = ButtonText // Стиль текста кнопки из Type.kt
+            style = ButtonText // Стиль текста кнопки
         )
     }
 }

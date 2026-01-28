@@ -43,7 +43,7 @@ class ProjectRepositoryImpl @Inject constructor(
         tokenManager.saveProjects(newJson)
     }
 
-    // Метод для получения списка (пригодится для отображения на экране Проектов)
+    // Метод для получения списка
     override fun getAllProjects(): Flow<List<UserProject>> {
         return tokenManager.getProjects().map { jsonString ->
             try {

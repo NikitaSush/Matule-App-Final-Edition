@@ -14,13 +14,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.aiden3630.presentation.theme.*
-import com.aiden3630.presentation.theme.MatuleBlack
-import com.aiden3630.presentation.theme.MatuleBlue
-import com.aiden3630.presentation.theme.MatuleInputBg
-import com.aiden3630.presentation.theme.MatuleWhite
 import com.aiden3630.presentation.R as UiKitR
 
-// --- Компонент Индикатора (OOOO) ---
 @Composable
 fun PinIndicator(codeLength: Int) {
     Row(
@@ -44,7 +39,6 @@ fun PinIndicator(codeLength: Int) {
     }
 }
 
-// --- Компонент Клавиатуры ---
 @Composable
 fun NumberKeyboard(
     onNumberClick: (String) -> Unit,
@@ -57,43 +51,60 @@ fun NumberKeyboard(
         listOf(null, "0", "del")
     )
 
-    Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
         keys.forEach { row ->
             Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(modifier = Modifier.weight(1f))
-
                 row.forEach { key ->
-                    if (key == null) {
-                        Spacer(modifier = Modifier.size(80.dp))
-                    } else if (key == "del") {
-                        Box(
-                            modifier = Modifier.size(80.dp).clickable { onDeleteClick() },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(id = UiKitR.drawable.ic_delete),
-                                contentDescription = "Delete",
-                                tint = MatuleBlack
-                            )
+                    when (key) {
+                        null -> {
+                            // Пустое место для выравнивания
+                            Spacer(modifier = Modifier.size(80.dp))
                         }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(CircleShape)
-                                .background(MatuleInputBg)
-                                .clickable { onNumberClick(key) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = key, style = Title1, color = MatuleBlack)
+                        "del" -> {
+                            // Кнопка удаления
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                                    .clickable { onDeleteClick() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                // UI
+                                Icon(
+                                    painter = painterResource(id = UiKitR.drawable.ic_delete),
+                                    contentDescription = "Delete",
+                                    tint = MatuleBlack,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                        else -> {
+                            // Кнопка с цифрой
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                                    .background(MatuleInputBg)
+                                    .clickable { onNumberClick(key) }, // ТУТ ТОЛЬКО ЛОГИКА
+                                contentAlignment = Alignment.Center
+                            ) {
+
+                                Text(
+                                    text = key,
+                                    style = Title1,
+                                    color = MatuleBlack
+                                )
+                            }
                         }
                     }
                 }
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }

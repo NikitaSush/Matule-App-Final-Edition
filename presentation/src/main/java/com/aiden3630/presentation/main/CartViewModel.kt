@@ -49,7 +49,7 @@ class CartViewModel @Inject constructor(
             // Чистим корзину
             cartManager.clearCart()
 
-            // 👇 2. ВЫЗЫВАЕМ УВЕДОМЛЕНИЕ
+            // Уведомление
             notificationService.showNotification(
                 title = "Заказ успешно оформлен!",
                 message = "Сумма заказа: $currentSum ₽. Спасибо за покупку!"

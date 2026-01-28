@@ -24,13 +24,13 @@ fun MatuleSearchField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Искать описания" // Текст как на макете
+    placeholder: String = "Искать описания"
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(52.dp)
-            .background(MatuleInputBg, RoundedCornerShape(14.dp)), // Серый фон, скругления
+            .background(MatuleInputBg, RoundedCornerShape(14.dp)),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(

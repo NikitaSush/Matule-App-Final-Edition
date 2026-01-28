@@ -28,20 +28,20 @@ class CartManager @Inject constructor() {
         val existingItem = currentList.find { it.product.id == product.id }
 
         val newList = if (existingItem != null) {
-            // Если товар есть -> Создаем НОВЫЙ список, где у нужного товара обновлено количество
+            // Если товар есть = Создаем НОВЫЙ список, где у нужного товара обновлено количество
             currentList.map { item ->
                 if (item.product.id == product.id) {
-                    item.copy(quantity = item.quantity + 1) // 👈 ВАЖНО: copy() создает новый объект
+                    item.copy(quantity = item.quantity + 1)
                 } else {
                     item
                 }
             }
         } else {
-            // Если товара нет -> Добавляем новый в конец
+            // Если товара нет = Добавляем новый в конец
             currentList + CartItemModel(product, 1)
         }
 
-        _cartItems.value = newList // 👈 Обновляем StateFlow новым списком
+        _cartItems.value = newList
     }
 
     // Уменьшить количество
@@ -60,7 +60,7 @@ class CartManager @Inject constructor() {
             }
             _cartItems.value = newList
         } else {
-            // Если 1 шт -> Удаляем
+            // Если 1 шт = удаляем
             removeFromCart(product)
         }
     }
@@ -73,7 +73,7 @@ class CartManager @Inject constructor() {
         _cartItems.value = newList
     }
 
-    // Проверка наличия (для UI)
+    // Проверка наличия
     fun isInCart(productId: Int): Boolean {
         return _cartItems.value.any { it.product.id == productId }
     }

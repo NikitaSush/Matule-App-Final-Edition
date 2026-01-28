@@ -48,11 +48,11 @@ fun CartItem(
                     maxLines = 2
                 )
 
-                // Иконка удаления (справа сверху)
+                // Иконка удаления
                 Icon(
                     painter = painterResource(id = UiKitR.drawable.ic_delete),
                     contentDescription = "Delete",
-                    tint = MatuleError, // Красный или серый? В макете серый/черный, но delete обычно красный
+                    tint = MatuleError,
                     modifier = Modifier
                         .size(20.dp)
                         .clickable { onDeleteClick() }
@@ -61,7 +61,7 @@ fun CartItem(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Нижняя строка: Цена и Счетчик
+            // Цена и Счетчик
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -74,11 +74,11 @@ fun CartItem(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Счетчик (+ 1 шт -)
+                // Счетчик
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .background(MatuleInputBg, RoundedCornerShape(8.dp)) // Серый фон
+                        .background(MatuleInputBg, RoundedCornerShape(8.dp))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Icon(

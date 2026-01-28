@@ -1,7 +1,7 @@
 package com.aiden3630.presentation.components
 
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDefaults // 👈 Не забудь этот импорт!
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -36,14 +36,12 @@ fun MatuleDatePicker(
                 Text("Отмена", color = MatuleBlue)
             }
         },
-        // 👇 ВОТ ЗДЕСЬ БЫЛА ОШИБКА. ТЕПЕРЬ ПРАВИЛЬНО:
         colors = DatePickerDefaults.colors(
             containerColor = Color.White
         )
     ) {
         DatePicker(
             state = datePickerState,
-            // Можно и календарь покрасить в белый, если нужно:
             colors = DatePickerDefaults.colors(
                 containerColor = Color.White
             )

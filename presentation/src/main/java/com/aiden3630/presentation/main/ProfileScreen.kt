@@ -27,12 +27,16 @@ import com.aiden3630.presentation.theme.MatuleError
 import com.aiden3630.presentation.theme.MatuleInputBg
 import com.aiden3630.presentation.theme.MatuleTextGray
 import com.aiden3630.presentation.theme.MatuleWhite
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import android.widget.Toast
 
 @Composable
 fun ProfileScreen( onLogoutClick: () -> Unit = {}, viewModel: ProfileViewModel = hiltViewModel()) {
     val context = LocalContext.current
     var isNotificationsEnabled by remember { mutableStateOf(true) }
     val state by viewModel.state.collectAsState()
+    val scrollState = rememberScrollState()
 
     // Функция для открытия PDF (ссылки)
     fun openPdf(url: String) {
@@ -44,18 +48,18 @@ fun ProfileScreen( onLogoutClick: () -> Unit = {}, viewModel: ProfileViewModel =
         modifier = Modifier
             .fillMaxSize()
             .background(MatuleWhite)
+            .verticalScroll(scrollState)
             .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(20.dp)) // Отступ сверху
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // --- 1. Шапка (Имя и Почта) ---
-        // Тут нет аватарки в CSS, только текст, но если хочешь - оставь
+        // Шапка (Имя и Почта)
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Аватарка (если нужна по старому макету)
+            // Аватарка
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -72,7 +76,6 @@ fun ProfileScreen( onLogoutClick: () -> Unit = {}, viewModel: ProfileViewModel =
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 👇 3. ПОДСТАВЛЯЕМ РЕАЛЬНЫЕ ДАННЫЕ
             // Объединяем Имя и Фамилию
             Text(text = "${state.name} ${state.surname}", style = Title1)
 
@@ -84,12 +87,15 @@ fun ProfileScreen( onLogoutClick: () -> Unit = {}, viewModel: ProfileViewModel =
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // --- 2. Меню ---
+        // Меню
 
         // Мои заказы
         ProfileMenuItem(
             title = "Мои заказы",
-            iconRes = UiKitR.drawable.ic_notification
+            iconRes = UiKitR.drawable.ic_cart,
+            onClick = {
+                Toast.makeText(context, "Раздел находится в разработке", Toast.LENGTH_SHORT).show()
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -100,13 +106,12 @@ fun ProfileScreen( onLogoutClick: () -> Unit = {}, viewModel: ProfileViewModel =
                 .fillMaxWidth()
                 .height(56.dp)
                 .background(MatuleWhite, RoundedCornerShape(12.dp))
-                // Тень можно добавить, но в CSS там белый фон
-                .padding(horizontal = 10.dp), // Отступы внутри
+                .padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Иконка
             Icon(
-                painter = painterResource(id = UiKitR.drawable.ic_settings), // Временно профиль, нужна шестеренка
+                painter = painterResource(id = UiKitR.drawable.ic_settings),
                 contentDescription = null,
                 tint = Color.Unspecified,
                 modifier = Modifier.size(24.dp)
@@ -115,25 +120,25 @@ fun ProfileScreen( onLogoutClick: () -> Unit = {}, viewModel: ProfileViewModel =
 
             Text(text = "Уведомления", style = Title3, modifier = Modifier.weight(1f))
 
-            // 👇 ОБНОВЛЕННЫЙ ТОГГЛ
             MatuleToggle(
-                checked = state.isNotificationsEnabled, // Берем из ViewModel
+                checked = state.isNotificationsEnabled,
                 onCheckedChange = { isEnabled ->
-                    viewModel.toggleNotifications(isEnabled) // Сохраняем изменение
+                    viewModel.toggleNotifications(isEnabled)
                 }
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f)) // Прижимаем остальное вниз
+        Spacer(modifier = Modifier.weight(1f))
 
-        // --- 3. Подвал (Footer) ---
+        // Низ
+        Spacer(modifier = Modifier.height(40.dp))
 
         Text(
             text = "Политика конфиденциальности",
             style = Caption,
             color = MatuleTextGray,
             modifier = Modifier.clickable {
-                // Ссылка на PDF (пока заглушка Google, на чемпионате дадут реальную)
+                // Ссылка на PDF
                 openPdf("https://google.com")
             }
         )
@@ -155,25 +160,25 @@ fun ProfileScreen( onLogoutClick: () -> Unit = {}, viewModel: ProfileViewModel =
             text = "Выход",
             style = Title3.copy(color = MatuleError),
             modifier = Modifier.clickable {
-                // 👇 4. Очищаем токен при выходе
+                //Очищаем токен при выходе
                 viewModel.logout()
                 onLogoutClick()
             }
         )
 
-        Spacer(modifier = Modifier.height(100.dp)) // Отступ под BottomBar
+        Spacer(modifier = Modifier.height(110.dp))
     }
 }
 
 // Вспомогательный компонент для пункта меню
 @Composable
-fun ProfileMenuItem(title: String, iconRes: Int) {
+fun ProfileMenuItem(title: String, iconRes: Int, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
             .background(MatuleWhite)
-            .clickable { }
+            .clickable { onClick() }
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -188,7 +193,7 @@ fun ProfileMenuItem(title: String, iconRes: Int) {
 
         // Стрелочка вправо
         Icon(
-            painter = painterResource(id = UiKitR.drawable.ic_chevron_left), // Надо развернуть
+            painter = painterResource(id = UiKitR.drawable.ic_chevron_left),
             contentDescription = null,
             tint = MatuleBlack,
             modifier = Modifier.size(24.dp).rotate(180f)

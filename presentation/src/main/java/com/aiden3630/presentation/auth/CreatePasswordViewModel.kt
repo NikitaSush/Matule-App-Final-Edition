@@ -24,13 +24,12 @@ class CreatePasswordViewModel @Inject constructor(
     fun finalizeRegistration(password: String) {
         viewModelScope.launch {
             try {
-                // 1. Достаем данные, которые пользователь ввел на прошлом экране (анкете)
-                // .first() берет текущее значение из Flow в DataStore
+                // Достаем данные, которые пользователь ввел на прошлом экране
                 val email = tokenManager.getEmail().first()
                 val name = tokenManager.getName().first()
                 val surname = tokenManager.getSurname().first()
 
-                // 2. Вызываем РЕАЛЬНУЮ регистрацию в нашем JSON-файле с настоящим паролем
+                // Вызываем регистрацию в нашем JSON-файле
                 repository.signUp(
                     email = email,
                     password = password,
@@ -38,7 +37,7 @@ class CreatePasswordViewModel @Inject constructor(
                     surname = surname
                 )
 
-                // 3. Если всё ок — шлем сигнал успеха
+                // Если всё ок — шлем сигнал успеха
                 _event.send(AuthEvent.Success)
 
             } catch (e: Exception) {

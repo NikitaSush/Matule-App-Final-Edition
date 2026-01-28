@@ -66,13 +66,12 @@ fun SignUpScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MatuleWhite)
-            // Добавляем скролл, так как полей много
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
-            .padding(bottom = 40.dp) // Отступ снизу, чтобы кнопка не прилипала
+            .padding(bottom = 40.dp)
     ) {
 
-        // --- Заголовок ---
+        // Заголовок
         Spacer(modifier = Modifier.height(76.dp)) // Отступ сверху по макету
         Text(
             text = "Создание Профиля",
@@ -96,7 +95,7 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        // --- Поля ввода ---
+        // Поля ввода
 
         // Имя
         MatuleTextField(
@@ -129,8 +128,6 @@ fun SignUpScreen(
             placeholder = "Дата рождения",
             readOnly = true, // Клавиатура не нужна
             onClick = { showDatePicker = true }, // Открываем календарь
-            // Можно добавить иконку календаря, если есть (ic_calendar)
-            // trailingIcon = { Icon(...) }
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -141,8 +138,8 @@ fun SignUpScreen(
                 value = gender,
                 onValueChange = {}, // Пусто, так как мы не даем писать руками
                 placeholder = "Пол",
-                readOnly = true, // 👈 Клавиатура не откроется
-                onClick = { isGenderMenuExpanded = true }, // 👈 При клике открываем меню
+                readOnly = true, // Клавиатура не откроется
+                onClick = { isGenderMenuExpanded = true }, // При клике открываем меню
                 trailingIcon = {
                     Icon(
                         painter = painterResource(id = UiKitR.drawable.ic_chevron_down),
@@ -152,19 +149,19 @@ fun SignUpScreen(
                 }
             )
 
-            // 2. Само меню
+            // Само меню
             DropdownMenu(
                 expanded = isGenderMenuExpanded,
                 onDismissRequest = { isGenderMenuExpanded = false },
                 modifier = Modifier
                     .background(MatuleWhite)
-                    .fillMaxWidth(0.9f) // Ширина меню чуть меньше экрана
+                    .fillMaxWidth(0.9f)
             ) {
                 DropdownMenuItem(
                     text = { Text("Мужской", style = BodyText) },
                     onClick = {
                         gender = "Мужской"
-                        isGenderMenuExpanded = false // Закрываем меню
+                        isGenderMenuExpanded = false
                     }
                 )
                 DropdownMenuItem(
@@ -192,12 +189,11 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // --- Кнопка Далее ---
+        // Кнопка Далее
         MatuleButton(
             text = "Далее",
             onClick = {
                 if (validateEmail(email)) {
-                    // 👇 ТЕПЕРЬ ВЫЗЫВАЕМ ЧЕРЕЗ VIEWMODEL
                     viewModel.saveTmpUserInfo(email, name, surname)
                     onNextClick()
                 } else {

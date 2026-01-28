@@ -74,7 +74,7 @@ fun CreatePasswordScreen(
             .background(MatuleWhite)
             .padding(horizontal = 20.dp)
     ) {
-        // --- Заголовок с Рукой ---
+        // Заголовок
         Spacer(modifier = Modifier.height(103.dp))
 
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -96,7 +96,7 @@ fun CreatePasswordScreen(
 
         Spacer(modifier = Modifier.height(35.dp))
 
-        // --- Поля ввода ---
+        // Поля ввода
 
         // Новый пароль
         Text("Новый Пароль", style = Caption, color = MatuleBlack)
@@ -131,12 +131,11 @@ fun CreatePasswordScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // --- Кнопка "Сохранить" ---
+        // Кнопка "Сохранить"
         MatuleButton(
             text = "Сохранить",
             onClick = {
                 if (validatePassword()) {
-                    // 👇 ВЫЗЫВАЕМ РЕАЛЬНОЕ СОХРАНЕНИЕ
                     viewModel.finalizeRegistration(password)
                 }
             },

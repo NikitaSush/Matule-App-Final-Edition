@@ -14,7 +14,7 @@ class ProfileViewModel @Inject constructor(
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
-    // Состояние UI: хранит имя, фамилию и почту
+    // Состояние UI
     private val _state = MutableStateFlow(ProfileState())
     val state = _state.asStateFlow()
 
@@ -25,7 +25,6 @@ class ProfileViewModel @Inject constructor(
     private fun loadProfile() {
         viewModelScope.launch {
             // Собираем данные из DataStore
-            // (в реальности можно сделать combine, но пока сделаем просто)
             tokenManager.getName().collect { name ->
                 _state.value = _state.value.copy(name = name)
             }
@@ -46,12 +45,9 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
-
-    // 👇 Функция переключения
     fun toggleNotifications(enabled: Boolean) {
         viewModelScope.launch {
             tokenManager.saveNotificationsEnabled(enabled)
-            // State обновится сам, так как мы подписаны через collect выше
         }
     }
 

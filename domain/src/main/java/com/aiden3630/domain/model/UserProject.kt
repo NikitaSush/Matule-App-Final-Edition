@@ -8,6 +8,6 @@ data class UserProject(
     val name: String,
     val type: String,
     val dateStart: String,
-    val imageUri: String?, // Путь к картинке
+    val imageUri: String?,
     val category: String
 )

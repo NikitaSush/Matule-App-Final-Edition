@@ -14,10 +14,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val tokenManager: TokenManager
+    val tokenManager: TokenManager
 ) : ViewModel() {
 
-    // Состояние: Куда переходить? (null - пока ждем, String - маршрут)
     private val _startDestination = MutableStateFlow<String?>(null)
     val startDestination = _startDestination.asStateFlow()
 
@@ -27,18 +26,15 @@ class SplashViewModel @Inject constructor(
 
     private fun checkSession() {
         viewModelScope.launch {
-            // 1. Ждем 2 секунды (чтобы пользователь увидел логотип)
+            // Ждем 2 секунды
             delay(2000)
 
-            // 2. Читаем токен из памяти (берем первое значение)
+            // Читаем токен из памяти (берем первое значение)
             val token = tokenManager.getToken().first()
-
-            // 3. Принимаем решение
             if (!token.isNullOrEmpty()) {
-                // Токен есть -> Идем вводить ПИН-КОД
+                // 👇 ВСЕГДА на ПИН-КОД, если залогинен
                 _startDestination.value = Route.SIGN_IN_PIN
             } else {
-                // Токена нет -> Идем на ВХОД/РЕГИСТРАЦИЮ
                 _startDestination.value = Route.SIGN_IN
             }
         }

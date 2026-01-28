@@ -24,6 +24,17 @@ import androidx.navigation.navArgument
 import android.Manifest
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
+import com.aiden3630.presentation.utils.NotificationWorker
+import kotlinx.coroutines.launch
+import com.aiden3630.presentation.main.StoryBookScreen
 
 
 @AndroidEntryPoint
@@ -31,7 +42,7 @@ class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        // Можно обработать ответ, но нам не обязательно
+
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +53,27 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+            val scope = rememberCoroutineScope()
+            val tokenManager = hiltViewModel<com.aiden3630.presentation.splash.SplashViewModel>().tokenManager
 
+            DisposableEffect(navController) {
+                val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+                    val route = destination.route
+                    if (route != null &&
+                        route != Route.SPLASH &&
+                        route != Route.SIGN_IN &&
+                        route != Route.SIGN_IN_PIN &&
+                        route != Route.STORYBOOK
+                    ) {
+                        scope.launch { tokenManager.saveLastRoute(route) }
+                    }
+                }
+                navController.addOnDestinationChangedListener(listener)
+                onDispose { navController.removeOnDestinationChangedListener(listener) }
+            }
             NavHost(
                 navController = navController,
-                startDestination = Route.SPLASH // С чего начинаем
+                startDestination = Route.SPLASH
             ) {
 
                 composable(Route.SPLASH) {
@@ -87,7 +115,6 @@ class MainActivity : ComponentActivity() {
                 composable(Route.CREATE_PIN) {
                     CreatePinScreen(
                         onPinCreated = {
-                            // Пин создан -> Идем на ГЛАВНУЮ
                             navController.navigate(Route.HOME) {
                                 // Очищаем всё до входа, чтобы нельзя было вернуться назад
                                 popUpTo(Route.SIGN_IN) { inclusive = true }
@@ -97,9 +124,8 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(Route.SIGN_IN_PIN) {
                     SignInPinScreen(
-                        onAuthSuccess = {
-                            // Пин верный -> Пускаем в приложение
-                            navController.navigate(Route.HOME) {
+                        onAuthSuccess = { lastRoute ->
+                            navController.navigate(lastRoute) {
                                 popUpTo(Route.SIGN_IN_PIN) { inclusive = true }
                             }
                         }
@@ -114,7 +140,7 @@ class MainActivity : ComponentActivity() {
                         onNavigateToCreateProject = {
                             navController.navigate(Route.CREATE_PROJECT)
                         },
-                        // 👇 Логика выхода
+                        // Логика выхода
                         onLogout = {
                             navController.navigate(Route.SIGN_IN) {
                                 // Удаляем всё из стека, чтобы нельзя было вернуться назад
@@ -130,7 +156,7 @@ class MainActivity : ComponentActivity() {
                 composable(Route.CART) {
                     com.aiden3630.presentation.main.CartScreen(
                         onBackClick = { navController.popBackStack() },
-                        // 👇 Если заказ оформлен -> идем на ГЛАВНУЮ
+                        // Если заказ оформлен = идем на ГЛАВНУЮ
                         onGoHome = {
                             navController.navigate(Route.HOME) {
                                 // Очищаем стек, чтобы по кнопке "Назад" не вернуться в корзину
@@ -151,13 +177,12 @@ class MainActivity : ComponentActivity() {
                 composable(Route.CREATE_PROJECT) {
                     CreateProjectScreen(
                         onBackClick = {
-                            navController.popBackStack() // Кнопка назад
+                            navController.popBackStack()
                         }
                     )
                 }
                 composable(
                     route = Route.PROJECT_DETAILS,
-                    // Говорим, что ждем аргумент projectId
                     arguments = listOf(androidx.navigation.navArgument("projectId") {
                         type = androidx.navigation.NavType.StringType
                     })
@@ -169,7 +194,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
                 composable(
-                    route = "${Route.PROJECT_DETAILS}/{projectId}", // Указываем, что ждем параметр
+                    route = "${Route.PROJECT_DETAILS}/{projectId}",
                     arguments = listOf(navArgument("projectId") { type = NavType.StringType })
                 ) { backStackEntry ->
                     // Достаем ID из аргументов
@@ -180,8 +205,31 @@ class MainActivity : ComponentActivity() {
                         onBackClick = { navController.popBackStack() }
                     )
                 }
+                composable(Route.STORYBOOK) {
+                    StoryBookScreen(onBack = { navController.popBackStack() })
+                }
 
             }
         }
+    }
+    override fun onStop() {
+        super.onStop()
+        // Создаем задачу "на один раз"
+        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(1, TimeUnit.MINUTES)
+            .addTag("reminder_work")
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "inactive_reminder",
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Отменяем уведомление, так как он зашел раньше, чем прошла минута
+        WorkManager.getInstance(this).cancelUniqueWork("inactive_reminder")
     }
 }

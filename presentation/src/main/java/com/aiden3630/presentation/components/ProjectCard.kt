@@ -28,7 +28,7 @@ import coil.compose.AsyncImage
 fun ProjectCard(
     title: String,
     date: String,
-    imageUri: String? = null, // 👈 Новый параметр
+    imageUri: String? = null,
     onClick: () -> Unit
 ) {
     Box(
@@ -50,7 +50,6 @@ fun ProjectCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // --- КАРТИНКА ИЛИ ЗАГЛУШКА ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,7 +66,6 @@ fun ProjectCard(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-                // Если картинки нет, просто останется серый фон
             }
 
             Spacer(modifier = Modifier.height(12.dp))

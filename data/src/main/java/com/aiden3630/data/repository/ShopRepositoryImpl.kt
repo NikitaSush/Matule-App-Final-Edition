@@ -12,12 +12,12 @@ import java.io.File
 import javax.inject.Inject
 
 class ShopRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context // Нам нужен контекст для доступа к файлам
+    @ApplicationContext private val context: Context // Нам нужен контекст
 ) : ShopRepository {
 
     private val jsonParser = Json {
         ignoreUnknownKeys = true
-        prettyPrint = true // Чтобы файл был красивым в блокноте
+        prettyPrint = true
     }
 
     private val fileName = "shop_products.json"
@@ -87,7 +87,7 @@ class ShopRepositoryImpl @Inject constructor(
         try {
             val file = File(context.filesDir, fileName)
 
-            // Если файла нет — создаем его и пишем туда дефолтные данные
+            // Если файла нет - создаем
             if (!file.exists()) {
                 file.createNewFile()
                 val defaultData = getDefaultProducts()

@@ -8,16 +8,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.aiden3630.presentation.theme.*
 import com.aiden3630.presentation.theme.MatuleBlack
 import com.aiden3630.presentation.theme.MatuleError
 import com.aiden3630.presentation.theme.MatuleWhite
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignInPinScreen(
-    correctPin: String = "1234", // Временно: правильный пароль для теста
-    onAuthSuccess: () -> Unit = {}
+    onAuthSuccess: (String) -> Unit = {},
+    viewModel: SignInPinViewModel = hiltViewModel()
 ) {
+    val tokenManager = viewModel.tokenManager
+    val scope = rememberCoroutineScope()
+    val savedPin by tokenManager.getPin().collectAsState(initial = null)
     var pinCode by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
 
@@ -27,13 +33,14 @@ fun SignInPinScreen(
             pinCode += number
 
             if (pinCode.length == 4) {
-                // ПРОВЕРКА ПАРОЛЯ
-                if (pinCode == correctPin) {
-                    onAuthSuccess()
+                if (pinCode == savedPin || savedPin == null) {
+                    scope.launch {
+                        val lastRoute = tokenManager.getLastRoute().first()
+                        onAuthSuccess(lastRoute)
+                    }
                 } else {
-                    // Ошибка
                     isError = true
-                    pinCode = "" // Очищаем поле
+                    pinCode = ""
                 }
             }
         }

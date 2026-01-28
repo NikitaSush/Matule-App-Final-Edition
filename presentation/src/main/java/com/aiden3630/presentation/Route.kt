@@ -18,4 +18,6 @@ object Route {
     const val PROJECTS_TAB = "projects_tab"
     const val CREATE_PROJECT = "create_project"
     const val PROJECT_DETAILS = "project_details/{projectId}"
+
+    const val STORYBOOK = "storybook"
 }

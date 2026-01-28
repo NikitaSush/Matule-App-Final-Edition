@@ -15,21 +15,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val shopRepository: ShopRepository // 👈 Инжектим репозиторий
+    private val shopRepository: ShopRepository
 ) : ViewModel() {
 
-    // 1. Исходные данные теперь загружаются из Репозитория
+    // Исходные данные загружаются из Репозитория
     private val _allProducts = MutableStateFlow<List<Product>>(emptyList())
 
-    // 2. Состояние поиска и категории
+    // Состояние поиска и категории
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
     private val _selectedCategory = MutableStateFlow("Все")
     val selectedCategory = _selectedCategory.asStateFlow()
 
-    // 3. УМНЫЙ СПИСОК (Результат фильтрации)
-    // combine следит за изменениями в поиске, категории или списке товаров
+    // Умный список
     val filteredProducts = combine(_allProducts, _searchText, _selectedCategory) { products, text, category ->
         products.filter { product ->
             // Условие 1: Поиск по названию (игнорируя регистр)
@@ -46,14 +45,12 @@ class HomeViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    // При создании ViewModel загружаем данные
     init {
         loadProducts()
     }
 
     private fun loadProducts() {
         viewModelScope.launch {
-            // Читаем товары из JSON-файла через репозиторий
             shopRepository.getProducts().collect { list ->
                 _allProducts.value = list
             }

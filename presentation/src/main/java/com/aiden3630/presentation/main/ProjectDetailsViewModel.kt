@@ -15,11 +15,9 @@ class ProjectDetailsViewModel @Inject constructor(
     private val repository: ProjectRepository
 ) : ViewModel() {
 
-    // Состояние: загруженный проект (может быть null, пока грузится)
     private val _project = MutableStateFlow<UserProject?>(null)
     val project = _project.asStateFlow()
 
-    // Метод загрузки по ID
     fun loadProject(id: String) {
         viewModelScope.launch {
             val result = repository.getProjectById(id)

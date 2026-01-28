@@ -5,7 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items // 👈 Импорт для списка
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -53,7 +53,7 @@ fun CatalogScreen(
                 .padding(horizontal = 20.dp),
             contentPadding = PaddingValues(bottom = 100.dp)
         ) {
-            // --- 1. Хедер ---
+            // Хедер
             item {
                 Spacer(modifier = Modifier.height(20.dp))
                 Row(
@@ -62,7 +62,6 @@ fun CatalogScreen(
                 ) {
                     MatuleSearchField(
                         value = searchText,
-                        // 👇 ИСПРАВЛЕНИЕ 1: Правильное имя метода (onSearchChange)
                         onValueChange = { catalogViewModel.onSearchTextChange(it) },
                         modifier = Modifier.weight(1f)
                     )
@@ -86,7 +85,7 @@ fun CatalogScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // --- 2. Категории ---
+            // Категории
             item {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(categories.size) { index ->
@@ -102,7 +101,7 @@ fun CatalogScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // --- 3. Товары ---
+            // Товары
             if (products.isEmpty()) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(top = 20.dp), contentAlignment = Alignment.Center) {
@@ -114,10 +113,8 @@ fun CatalogScreen(
                     }
                 }
             } else {
-                // 👇 СМОТРИ СЮДА: мы пишем "product ->", чтобы дать имя переменной
                 items(items = products) { product: Product ->
 
-                    // 👇 Здесь мы пишем "cartItem ->", чтобы не путать с product
                     val isProductInCart = cartItems.any { cartItem -> cartItem.product.id == product.id }
 
                     ProductCard(
@@ -126,7 +123,6 @@ fun CatalogScreen(
                         category = product.category,
                         isInCart = isProductInCart,
 
-                        // 👇 Теперь используем "product", а не "it"
                         onAddClick = { cartViewModel.onPlusClick(product) },
                         onRemoveClick = { cartViewModel.onDeleteClick(product) },
                         onClick = { selectedProductForSheet = product }
@@ -136,7 +132,7 @@ fun CatalogScreen(
             }
         }
 
-        // --- 4. Кнопка Корзины ---
+        // Кнопка Корзины
         if (cartTotal > 0) {
             Box(
                 modifier = Modifier
@@ -165,7 +161,7 @@ fun CatalogScreen(
             }
         }
 
-        // --- 5. Шторка ---
+        // Шторка
         if (selectedProductForSheet != null) {
             ModalBottomSheet(
                 onDismissRequest = { selectedProductForSheet = null },

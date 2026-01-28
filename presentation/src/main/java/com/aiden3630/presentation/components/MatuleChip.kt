@@ -27,10 +27,10 @@ fun MatuleChip(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(10.dp)) // border-radius: 10px
-            .background(if (isSelected) MatuleBlue else MatuleInputBg) // Синий или Серый
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (isSelected) MatuleBlue else MatuleInputBg)
             .clickable { onClick() }
-            .padding(horizontal = 20.dp, vertical = 14.dp), // padding: 26px 20px (примерно)
+            .padding(horizontal = 20.dp, vertical = 14.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -39,7 +39,7 @@ fun MatuleChip(
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium
             ),
-            color = if (isSelected) MatuleWhite else MatuleBlack // Белый или Черный/Серый
+            color = if (isSelected) MatuleWhite else MatuleBlack
         )
     }
 }

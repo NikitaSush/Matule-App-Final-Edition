@@ -32,12 +32,11 @@ class NotificationService @Inject constructor(
     }
 
     private fun createNotificationChannel() {
-        // Каналы нужны только для Android 8.0+ (API 26+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH // HIGH - чтобы всплывало сверху
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = "Уведомления о статусе заказов и аккаунта"
             }
@@ -46,12 +45,12 @@ class NotificationService @Inject constructor(
     }
 
     fun showNotification(title: String, message: String) {
-        // 👇 2. Запускаем корутину, чтобы прочитать настройку из DataStore
+        // Запускаем корутину, чтобы прочитать настройку из DataStore
         CoroutineScope(Dispatchers.IO).launch {
             val isEnabled = tokenManager.getNotificationsEnabled().first()
 
             if (isEnabled) {
-                // Если разрешено -> показываем
+                // Если разрешено = показываем
                 val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_launcher_round)
                     .setContentTitle(title)

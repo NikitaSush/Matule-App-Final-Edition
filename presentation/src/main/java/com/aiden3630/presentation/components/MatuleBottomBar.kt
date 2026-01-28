@@ -27,9 +27,9 @@ fun MatuleBottomBar(
     tabs: List<BottomTab>
 ) {
     NavigationBar(
-        containerColor = MatuleWhite, // Белый фон
-        contentColor = MatuleBlue,    // Цвет эффектов
-        tonalElevation = 8.dp         // Тень
+        containerColor = MatuleWhite,
+        contentColor = MatuleBlue,
+        tonalElevation = 8.dp
     ) {
         tabs.forEach { tab ->
             val selected = currentRoute == tab.route
@@ -51,11 +51,11 @@ fun MatuleBottomBar(
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MatuleBlue,       // Синяя иконка, если выбрано
-                    selectedTextColor = MatuleBlue,       // Синий текст
-                    indicatorColor = MatuleWhite,         // Убираем серый овал при выделении (делаем его белым)
-                    unselectedIconColor = MatuleGrayIcon, // Серая иконка
-                    unselectedTextColor = MatuleGrayIcon  // Серый текст
+                    selectedIconColor = MatuleBlue,
+                    selectedTextColor = MatuleBlue,
+                    indicatorColor = MatuleWhite,
+                    unselectedIconColor = MatuleGrayIcon,
+                    unselectedTextColor = MatuleGrayIcon
                 )
             )
         }

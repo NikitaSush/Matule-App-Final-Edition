@@ -23,7 +23,7 @@ class JsonDbManager @Inject constructor(
     // JSON конфигурация
     private val json = Json {
         ignoreUnknownKeys = true
-        prettyPrint = true // Чтобы файл был красивым и читаемым
+        prettyPrint = true
         encodeDefaults = true
     }
 
@@ -40,7 +40,7 @@ class JsonDbManager @Inject constructor(
         return file
     }
 
-    // 1. ЧИТАЕМ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
+    // Читаем пользователей
     suspend fun getAllUsers(): List<UserDto> = withContext(Dispatchers.IO) {
         mutex.withLock {
             try {
@@ -56,7 +56,7 @@ class JsonDbManager @Inject constructor(
         }
     }
 
-    // 2. СОХРАНЯЕМ СПИСОК (Перезапись файла)
+    // Сохраняем список
     suspend fun saveAllUsers(users: List<UserDto>) = withContext(Dispatchers.IO) {
         mutex.withLock {
             try {
@@ -69,7 +69,7 @@ class JsonDbManager @Inject constructor(
         }
     }
 
-    // 3. ДОБАВИТЬ ОДНОГО (Утилита)
+    // Добавить одного
     suspend fun addUser(user: UserDto) {
         val currentList = getAllUsers().toMutableList()
         currentList.add(user)

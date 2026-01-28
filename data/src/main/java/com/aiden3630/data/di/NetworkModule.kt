@@ -1,4 +1,4 @@
-package com.aiden3630.core_network.di
+package com.aiden3630.data.di
 
 import dagger.Module
 import dagger.Provides
@@ -16,7 +16,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // Ссылка на сервер (пока заглушка, потом поменяем на реальный IP или Pocketbase)
+    // Ссылка на сервер (пока заглушка, потом поменяем на реальный IP)
     private const val BASE_URL = "https://api.matule.ru/api/"
 
     @Provides

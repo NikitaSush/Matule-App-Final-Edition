@@ -46,7 +46,6 @@ fun MatuleTextField(
     isError: Boolean = false,
     errorMessage: String? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
-    // 👇 НОВЫЕ ПАРАМЕТРЫ
     readOnly: Boolean = false, // Если true, клавиатура не откроется
     onClick: (() -> Unit)? = null // Что делать при клике на поле
 ) {
@@ -58,7 +57,6 @@ fun MatuleTextField(
     if (readOnly && onClick != null) {
         val isPressed by interactionSource.collectIsPressedAsState()
         if (isPressed) {
-            // Небольшой хак, чтобы клик срабатывал, но фокус не перехватывался
             LaunchedEffect(Unit) { onClick() }
         }
     }
@@ -82,7 +80,6 @@ fun MatuleTextField(
                     },
                     shape = RoundedCornerShape(14.dp)
                 )
-                // 👇 Если readOnly, то вешаем клик на весь Box
                 .clickable(enabled = readOnly && onClick != null) { onClick?.invoke() },
             contentAlignment = Alignment.CenterStart
         ) {
@@ -95,7 +92,7 @@ fun MatuleTextField(
                     .padding(end = if (isPassword || trailingIcon != null) 40.dp else 0.dp)
                     .onFocusChanged { isFocused = it.isFocused },
                 singleLine = true,
-                readOnly = readOnly, // 👈 Запрещает клавиатуру
+                readOnly = readOnly, // Запрещает клавиатуру
                 enabled = !readOnly, // Отключаем стандартное поведение ввода, если readOnly
                 textStyle = BodyText.copy(color = MatuleBlack),
                 cursorBrush = SolidColor(MatuleBlue),

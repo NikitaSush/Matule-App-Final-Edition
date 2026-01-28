@@ -8,26 +8,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.aiden3630.presentation.theme.*
-import com.aiden3630.presentation.theme.MatuleBlack
-import com.aiden3630.presentation.theme.MatuleTextGray
-import com.aiden3630.presentation.theme.MatuleWhite
 
 @Composable
 fun CreatePinScreen(
-    onPinCreated: () -> Unit = {}
+    onPinCreated: () -> Unit = {},
+    // Используем правильную ViewModel вместо прямого менеджера
+    viewModel: CreatePinViewModel = hiltViewModel()
 ) {
-    // Состояние введенного пин-кода (строка)
+    // Состояние введенного пин-кода
     var pinCode by remember { mutableStateOf("") }
 
-    // Функция обработки нажатий
+    // Следим за вводом: как только 4 цифры — сохраняем и уходим
+    LaunchedEffect(pinCode) {
+        if (pinCode.length == 4) {
+            viewModel.savePin(pinCode)
+            onPinCreated()
+        }
+    }
+
+    // Это ОБЫЧНЫЕ функции для обработки нажатий (БЕЗ @Composable)
     fun onNumberClick(number: String) {
         if (pinCode.length < 4) {
             pinCode += number
-            // Если ввели 4-ю цифру -> готово
-            if (pinCode.length == 4) {
-                onPinCreated()
-            }
         }
     }
 
@@ -37,6 +41,7 @@ fun CreatePinScreen(
         }
     }
 
+    // ВЕРСТКА
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,12 +49,10 @@ fun CreatePinScreen(
             .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // --- 1. Заголовки ---
-        Spacer(modifier = Modifier.height(103.dp)) // Отступ как везде
+        Spacer(modifier = Modifier.height(103.dp))
 
-        // В макете тут нет руки, просто текст
         Text(
-            text = "Создайте пароль", // На скрине "Создайте пароль", хотя это ПИН
+            text = "Создайте пароль",
             style = Title1,
             color = MatuleBlack
         )
@@ -65,18 +68,17 @@ fun CreatePinScreen(
 
         Spacer(modifier = Modifier.height(50.dp))
 
-        // --- 2. Индикатор (точки) ---
+        // Точки-индикаторы
         PinIndicator(codeLength = pinCode.length)
 
-        Spacer(modifier = Modifier.weight(1f)) // Толкаем клавиатуру вниз
+        Spacer(modifier = Modifier.weight(1f))
 
-        // --- 3. Клавиатура ---
+        // Клавиатура
         NumberKeyboard(
-            onNumberClick = { onNumberClick(it) },
+            onNumberClick = { number -> onNumberClick(number) },
             onDeleteClick = { onDeleteClick() }
         )
 
         Spacer(modifier = Modifier.height(50.dp))
     }
 }
-
