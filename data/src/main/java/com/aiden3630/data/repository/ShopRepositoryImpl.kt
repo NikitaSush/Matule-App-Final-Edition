@@ -12,17 +12,49 @@ import java.io.File
 import javax.inject.Inject
 
 class ShopRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context // Нам нужен контекст
+    @ApplicationContext private val context: Context
 ) : ShopRepository {
 
+    // Настройка парсера для работы с файлом
     private val jsonParser = Json {
         ignoreUnknownKeys = true
         prettyPrint = true
+        coerceInputValues = true
     }
 
     private val fileName = "shop_products.json"
 
-    // Дефолтный список, который запишется при первом запуске
+    /**
+     * Метод получения списка товаров.
+     * Если файла не существует, он создается с начальным набором данных.
+     */
+    override fun getProducts(): Flow<List<Product>> = flow {
+        try {
+            val file = File(context.filesDir, fileName)
+
+            // Проверка наличия файла базы данных
+            if (!file.exists()) {
+                val defaultData = getDefaultProducts()
+                val jsonString = jsonParser.encodeToString(defaultData)
+                file.writeText(jsonString)
+            }
+
+            // Чтение данных из файла
+            val content = file.readText()
+            // Используем библиотеку сериализации для превращения текста в объекты
+            val products = jsonParser.decodeFromString<List<Product>>(content)
+            emit(products)
+
+        } catch (e: Exception) {
+            android.util.Log.e("ShopRepository", "Ошибка чтения JSON: ${e.message}")
+            emit(emptyList())
+        }
+    }
+
+    /**
+     * Начальный список товаров для инициализации файла.
+     * Параметры указаны строго в соответствии с моделью Product в модуле Domain.
+     */
     private fun getDefaultProducts(): List<Product> {
         return listOf(
             Product(
@@ -30,8 +62,11 @@ class ShopRepositoryImpl @Inject constructor(
                 title = "Рубашка Воскресенье",
                 price = 300,
                 category = "Мужчинам",
+                imageUrl = null, // Добавили явно, чтобы не было путаницы
                 description = "Мой выбор для этих шапок – кардные составы, которые раскрываются деликатным пушком. Кашемиры, мериносы, смесовки с ними отлично подойдут на шапку.\n" +
                         "Кардные составы берите в большое количество сложений, вязать будем резинку 1х1, плотненько.\n" +
+                        "Пряжу 1400-1500м в 100г в 4 сложения, пряжу 700м в 2 сложения. Ориентир для конечной толщины – 300-350м в 100г.\n" +
+                        "Артикулы, из которых мы вязали эту модель: Zermatt Zegna Baruffa, Cashfive, Baby Cashmere Loro Piana, Soft Donegal и другие.\n" +
                         "Примерный расход на шапку с подгибом 70-90г."
             ),
             Product(
@@ -39,6 +74,7 @@ class ShopRepositoryImpl @Inject constructor(
                 title = "Шорты Вторник",
                 price = 400,
                 category = "Мужчинам",
+                imageUrl = null,
                 description = "Легкие и удобные шорты для дома и отдыха. \n" +
                         "Рекомендуемая пряжа: хлопок с акрилом (50/50) или чистый хлопок мерсеризованный.\n" +
                         "Спицы: №3 для резинки, №4 для основного полотна.\n" +
@@ -50,6 +86,7 @@ class ShopRepositoryImpl @Inject constructor(
                 title = "Платье Среда",
                 price = 800,
                 category = "Женщинам",
+                imageUrl = null,
                 description = "Элегантное платье силуэта трапеция.\n" +
                         "Идеально подходит для летних прогулок. Используйте натуральный лен или шелк.\n" +
                         "Вам понадобится:\n" +
@@ -63,6 +100,7 @@ class ShopRepositoryImpl @Inject constructor(
                 title = "Футболка Четверг",
                 price = 450,
                 category = "Детям",
+                imageUrl = null,
                 description = "Базовая футболка оверсайз для ребенка.\n" +
                         "Материал: Кулирная гладь (100% хлопок) или футер 2-х нитка.\n" +
                         "Расход ткани: 0.6 - 0.8 метра в зависимости от роста.\n" +
@@ -74,6 +112,7 @@ class ShopRepositoryImpl @Inject constructor(
                 title = "Кепка Пятница",
                 price = 150,
                 category = "Аксессуары",
+                imageUrl = null,
                 description = "Стильный аксессуар для завершения образа.\n" +
                         "Вязание крючком №3.5.\n" +
                         "Пряжа: Рафия (натуральное волокно из листьев пальмы).\n" +
@@ -81,28 +120,5 @@ class ShopRepositoryImpl @Inject constructor(
                         "Кепка держит форму, не боится влаги и отлично защищает от солнца."
             )
         )
-    }
-
-    override fun getProducts(): Flow<List<Product>> = flow {
-        try {
-            val file = File(context.filesDir, fileName)
-
-            // Если файла нет - создаем
-            if (!file.exists()) {
-                file.createNewFile()
-                val defaultData = getDefaultProducts()
-                val jsonString = jsonParser.encodeToString(defaultData)
-                file.writeText(jsonString)
-            }
-
-            // Читаем из файла
-            val content = file.readText()
-            val products = jsonParser.decodeFromString<List<Product>>(content)
-            emit(products)
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emit(emptyList())
-        }
     }
 }

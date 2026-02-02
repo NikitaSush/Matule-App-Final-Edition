@@ -11,7 +11,7 @@ import com.aiden3630.data.manager.TokenManager
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val tokenManager: TokenManager
+    val tokenManager: TokenManager
 ) : ViewModel() {
 
     // Состояние UI

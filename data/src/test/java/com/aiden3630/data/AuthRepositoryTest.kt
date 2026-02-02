@@ -1,23 +1,25 @@
-package com.aiden3630.data
+package com.aiden3630.data.repository
 
+import com.aiden3630.data.manager.JsonDbManager
 import com.aiden3630.data.manager.TokenManager
+import com.aiden3630.data.model.UserDto
 import com.aiden3630.data.network.AuthApi
-import com.aiden3630.data.repository.AuthRepositoryImpl
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class AuthRepositoryTest {
 
-    // Создаем фейковые классы (пустышки)
+    // 1. Создаем фейки
     private val api = mockk<AuthApi>(relaxed = true)
     private val tokenManager = mockk<TokenManager>(relaxed = true)
+    // 👇 Добавляем фейковый JsonDbManager
+    private val jsonDbManager = mockk<JsonDbManager>(relaxed = true)
 
-    // Создаем реальный репозиторий, но даем ему фейки
-    private val repository = AuthRepositoryImpl(api, tokenManager)
+    // 2. Создаем репозиторий с ТРЕМЯ аргументами
+    private val repository = AuthRepositoryImpl(api, tokenManager, jsonDbManager)
 
     @Test
     fun `signIn saves token and user info`() = runTest {
@@ -25,17 +27,24 @@ class AuthRepositoryTest {
         val email = "test@mail.ru"
         val password = "pass"
 
-        // Обманываем репозиторий: говорим, что в базе есть такой юзер
-        coEvery { tokenManager.getUsersDb() } returns flowOf(
-            """[{"id":"1","email":"test@mail.ru","firstname":"Test","lastname":"User"}]"""
+        // Настраиваем фейковую базу: когда попросят getAllUsers, верни список с одним юзером
+        coEvery { jsonDbManager.getAllUsers() } returns listOf(
+            UserDto(
+                id = "123",
+                email = email,
+                password = password,
+                name = "TestName",
+                surname = "TestSurname"
+            )
         )
 
         // WHEN (Когда)
         repository.signIn(email, password)
 
         // THEN (Тогда проверяем)
-        // Убеждаемся, что репозиторий вызвал метод сохранения
+        // Проверяем, что репозиторий сохранил токен
         coVerify { tokenManager.saveToken(any()) }
-        coVerify { tokenManager.saveUserInfo(email, "Test", "User") }
+        // Проверяем, что репозиторий сохранил данные профиля
+        coVerify { tokenManager.saveUserInfo(email, "TestName", "TestSurname") }
     }
 }

@@ -123,9 +123,20 @@ class MainActivity : ComponentActivity() {
                     )
                 }
                 composable(Route.SIGN_IN_PIN) {
-                    SignInPinScreen(
+                    com.aiden3630.presentation.auth.SignInPinScreen(
                         onAuthSuccess = { lastRoute ->
-                            navController.navigate(lastRoute) {
+                            // 👇 ПРОВЕРКА: Если это вкладка, идем на HOME (общий контейнер)
+                            // Если это отдельный экран (например, CART), идем на него.
+                            val destination = when (lastRoute) {
+                                Route.HOME_TAB,
+                                Route.CATALOG_TAB,
+                                Route.PROJECTS_TAB,
+                                Route.PROFILE_TAB -> Route.HOME // Для вкладок идем в "корень"
+
+                                else -> if (lastRoute.isEmpty()) Route.HOME else lastRoute
+                            }
+
+                            navController.navigate(destination) {
                                 popUpTo(Route.SIGN_IN_PIN) { inclusive = true }
                             }
                         }
