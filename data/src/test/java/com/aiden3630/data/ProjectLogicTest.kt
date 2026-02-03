@@ -3,6 +3,7 @@ package com.aiden3630.data
 import com.aiden3630.data.manager.TokenManager
 import com.aiden3630.data.repository.ProjectRepositoryImpl
 import io.mockk.*
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -18,7 +19,10 @@ class ProjectLogicTest {
 
     @Test // Запрос 12: Создание проекта
     fun `test create project`() = runTest {
-        repo.createProject("Name", "Type", "Date", null)
+        coEvery { tokenManager.getProjects() } returns flowOf("[]")
+
+        repo.createProject("Title", "Type", "Date", null)
+
         coVerify { tokenManager.saveProjects(any()) }
     }
 }

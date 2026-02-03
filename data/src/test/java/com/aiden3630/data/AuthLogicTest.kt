@@ -1,6 +1,7 @@
 package com.aiden3630.data
 
 import com.aiden3630.data.manager.*
+import com.aiden3630.data.model.UserDto
 import com.aiden3630.data.network.AuthApi
 import com.aiden3630.data.repository.AuthRepositoryImpl
 import io.mockk.*
@@ -15,8 +16,14 @@ class AuthLogicTest {
 
     @Test // Запрос 1: Авторизация
     fun `test signIn`() = runTest {
-        coEvery { jsonDb.getAllUsers() } returns listOf(mockk(relaxed = true))
-        repo.signIn("test@mail.ru", "password")
+        val email = "test@mail.ru"
+        val pass = "123456"
+        coEvery { jsonDb.getAllUsers() } returns listOf(
+            UserDto("1", email, pass, "Ivan", "Ivanov")
+        )
+        repo.signIn(email, pass)
+
+        // Проверяем, что токен сохранился
         coVerify { tokenManager.saveToken(any()) }
     }
 
@@ -28,6 +35,7 @@ class AuthLogicTest {
 
     @Test // Запрос 3 и 13: Изменение профиля и получение инфы
     fun `test save and get info`() = runTest {
+        coEvery { jsonDb.getAllUsers() } returns emptyList()
         repo.signUp("test@mail.ru", "pass", "Emir", "M")
         coVerify { tokenManager.saveUserInfo("test@mail.ru", "Emir", "M") }
     }

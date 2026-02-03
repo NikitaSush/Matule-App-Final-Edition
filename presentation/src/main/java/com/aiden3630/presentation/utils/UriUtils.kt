@@ -8,17 +8,18 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-fun Context.createImageFile(): Uri {
+/**
+ * Создает временный Uri для записи фотографии с камеры.
+ */
+fun createImageUri(context: Context): Uri {
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val imageFileName = "JPEG_" + timeStamp + "_"
-    val image = File.createTempFile(
-        imageFileName,
-        ".jpg",
-        externalCacheDir
-    )
+    val storageDir = context.externalCacheDir
+    val file = File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
+
+    // Authorities должен совпадать с тем, что в AndroidManifest
     return FileProvider.getUriForFile(
-        this,
-        "${packageName}.provider",
-        image
+        context,
+        "${context.packageName}.provider",
+        file
     )
 }

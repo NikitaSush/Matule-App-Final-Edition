@@ -24,4 +24,17 @@ class ProjectDetailsViewModel @Inject constructor(
             _project.value = result
         }
     }
+    fun deleteProject(id: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            repository.deleteProject(id)
+            onSuccess()
+        }
+    }
+
+    fun updateProject(project: UserProject, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            repository.updateProject(project)
+            onSuccess()
+        }
+    }
 }

@@ -11,51 +11,87 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.aiden3630.presentation.theme.*
 import java.io.File
+import com.aiden3630.presentation.R
 
 @Composable
 fun ProjectDetailsScreen(
     projectId: String,
     onBackClick: () -> Unit,
+    onEditClick: (String) -> Unit, // 👇 Коллбек для перехода на редактирование
     viewModel: ProjectDetailsViewModel = hiltViewModel()
 ) {
-    // Загружаем проект при старте
+    val projectState by viewModel.project.collectAsState()
+
+    // Загружаем данные проекта при открытии
     LaunchedEffect(projectId) {
         viewModel.loadProject(projectId)
     }
 
-    val project by viewModel.project.collectAsState()
-
-    if (project == null) {
-        // Показываем загрузку, пока ищем проект
+    if (projectState == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = MatuleBlue)
         }
     } else {
-        // Показываем данные
+        val project = projectState!!
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MatuleWhite)
+                .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
-            // Кнопка назад (можно добавить иконку как везде)
-            TextButton(onClick = onBackClick) {
-                Text("Назад", color = MatuleBlue)
+            // --- ШАПКА (Назад, Редактировать, Удалить) ---
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_chevron_left),
+                        contentDescription = "Назад",
+                        tint = MatuleBlack
+                    )
+                }
+
+                Row {
+                    // Кнопка Редактировать -> Переход на CreateProjectScreen с ID
+                    IconButton(onClick = { onEditClick(project.id) }) {
+                        Icon(
+                            painter = painterResource(android.R.drawable.ic_menu_edit),
+                            contentDescription = "Редактировать",
+                            tint = MatuleBlue
+                        )
+                    }
+
+                    // Кнопка Удалить
+                    IconButton(onClick = {
+                        viewModel.deleteProject(project.id) { onBackClick() }
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_delete),
+                            contentDescription = "Удалить",
+                            tint = MatuleError
+                        )
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Картинка
-            if (project!!.imageUri != null) {
+            // --- ИЗОБРАЖЕНИЕ ПРОЕКТА ---
+            if (project.imageUri != null) {
                 AsyncImage(
-                    model = File(project!!.imageUri!!), // Читаем из файла
-                    contentDescription = null,
+                    model = File(project.imageUri),
+                    contentDescription = "Фото проекта",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -63,21 +99,39 @@ fun ProjectDetailsScreen(
                         .clip(RoundedCornerShape(16.dp))
                 )
             } else {
+                // Заглушка, если фото нет
                 Box(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .height(250.dp)
-                        .background(MatuleInputBg, RoundedCornerShape(16.dp))
-                )
+                        .height(200.dp)
+                        .background(MatuleInputBg, RoundedCornerShape(16.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Нет фото", color = MatuleTextGray)
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(text = project!!.name, style = Title1)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Категория: ${project!!.category}", style = BodyText, color = MatuleTextGray)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Начало: ${project!!.dateStart}", style = BodyText)
+            // --- ИНФОРМАЦИЯ ---
+            Text(text = project.name, style = Title1, color = MatuleBlack)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(text = "Категория", style = Caption, color = MatuleTextGray)
+            Text(text = project.category, style = BodyText, color = MatuleBlack)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(text = "Тип работы", style = Caption, color = MatuleTextGray)
+            Text(text = project.type, style = BodyText, color = MatuleBlack)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(text = "Дата начала", style = Caption, color = MatuleTextGray)
+            Text(text = project.dateStart, style = BodyText, color = MatuleBlack)
+
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }

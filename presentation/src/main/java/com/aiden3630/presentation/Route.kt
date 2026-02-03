@@ -20,4 +20,5 @@ object Route {
     const val PROJECT_DETAILS = "project_details/{projectId}"
 
     const val STORYBOOK = "storybook"
+    const val EDIT_PROJECT = "edit_project/{projectId}"
 }

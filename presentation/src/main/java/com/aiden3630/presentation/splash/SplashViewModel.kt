@@ -32,10 +32,9 @@ class SplashViewModel @Inject constructor(
             // Читаем токен из памяти (берем первое значение)
             val token = tokenManager.getToken().first()
             if (!token.isNullOrEmpty()) {
-                // 👇 ВСЕГДА на ПИН-КОД, если залогинен
-                _startDestination.value = Route.SIGN_IN_PIN
+                _startDestination.value = Route.SIGN_IN_PIN // Если вошел - на ПИН
             } else {
-                _startDestination.value = Route.SIGN_IN
+                _startDestination.value = Route.SIGN_IN // Если нет - на Вход
             }
         }
     }

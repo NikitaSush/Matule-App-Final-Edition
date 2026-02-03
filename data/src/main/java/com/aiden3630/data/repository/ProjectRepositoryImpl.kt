@@ -15,10 +15,21 @@ class ProjectRepositoryImpl @Inject constructor(
     private val tokenManager: TokenManager
 ) : ProjectRepository {
 
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+    }
 
-    override suspend fun createProject(name: String, type: String, dateStart: String, imageUri: String?) {
-        // 1. Читаем текущий список
+    override suspend fun createProject(
+        name: String,
+        type: String,
+        dateStart: String,
+        dateEnd: String,
+        imageUri: String?,
+        category: String,
+        toWhom: String,
+        source: String
+    ) {
         val projectsJson = tokenManager.getProjects().first()
         val currentList = try {
             json.decodeFromString<MutableList<UserProject>>(projectsJson)
@@ -26,24 +37,22 @@ class ProjectRepositoryImpl @Inject constructor(
             mutableListOf()
         }
 
-        // 2. Создаем новый проект
         val newProject = UserProject(
             id = UUID.randomUUID().toString(),
             name = name,
             type = type,
             dateStart = dateStart,
-            category = "Своё",
-            imageUri = imageUri
+            dateEnd = dateEnd, // 👈 Теперь это поле есть в модели
+            imageUri = imageUri,
+            category = category,
+            toWhom = toWhom,
+            source = source
         )
 
-        // 3. Добавляем и сохраняем
-        currentList.add(0, newProject) // Добавляем в начало списка
-        val newJson = json.encodeToString(currentList)
-
-        tokenManager.saveProjects(newJson)
+        currentList.add(0, newProject)
+        tokenManager.saveProjects(json.encodeToString(currentList))
     }
 
-    // Метод для получения списка
     override fun getAllProjects(): Flow<List<UserProject>> {
         return tokenManager.getProjects().map { jsonString ->
             try {
@@ -53,12 +62,29 @@ class ProjectRepositoryImpl @Inject constructor(
             }
         }
     }
-    override suspend fun getProjectById(id: String): UserProject? {
-        val projectsJson = tokenManager.getProjects().first()
-        val list = try {
-            json.decodeFromString<List<UserProject>>(projectsJson)
-        } catch (e: Exception) { emptyList() }
 
-        return list.find { it.id == id }
+    override suspend fun getProjectById(id: String): UserProject? {
+        val projects = getAllProjects().first()
+        return projects.find { project -> project.id == id }
+    }
+
+    override suspend fun deleteProject(id: String) {
+        val projects = getAllProjects().first().filter { project -> project.id != id }
+        tokenManager.saveProjects(json.encodeToString(projects))
+    }
+
+    override suspend fun updateProject(project: UserProject) {
+        val projectsJson = tokenManager.getProjects().first()
+        val currentList = try {
+            json.decodeFromString<MutableList<UserProject>>(projectsJson)
+        } catch (e: Exception) {
+            mutableListOf()
+        }
+
+        val index = currentList.indexOfFirst { it.id == project.id }
+        if (index != -1) {
+            currentList[index] = project
+            tokenManager.saveProjects(json.encodeToString(currentList))
+        }
     }
 }
